@@ -154,31 +154,31 @@ float *lm_rt_primary_rays( int width, int height ) {
 
   // Set up single sphere
   //
-  p0.x.f = (float) width / 4.0f;
-  p0.y.f = (float) height / 4.0f;
-  p0.z.f = (float) width / 8.0f;
+  p0.x = (float) width / 4.0f;
+  p0.y = (float) height / 4.0f;
+  p0.z = (float) width / 8.0f;
 
-  rad = 0.965 * p0.z.f;
+  rad = 0.965 * p0.z;
 
   // All rays originate from 0,0,0 creating a frustum with one aligned axis
   //
-  ro.x.f = 0.0f;
-  ro.y.f = 0.0f;
-  ro.z.f = 0.0f;
+  ro.x = 0.0f;
+  ro.y = 0.0f;
+  ro.z = 0.0f;
 
   for( y=0; y<height; y++ ) {
     for( x=0; x<width; x++ ) {
 
-      rd.x.f = (float) x;
-      rd.y.f = (float) y;
-      rd.z.f = 8.0f;          // pinhole camera with screen at depth 8.0f
+      rd.x = (float) x;
+      rd.y = (float) y;
+      rd.z = 8.0f;          // pinhole camera with screen at depth 8.0f
 
-      rd = lm_vec3_norm( rd );
+      lm_vec3_norm( &rd, rd );
 
       // test rays against two objects P and Q :)
       hit = lm_rt_raysphereint( ro, rd, p0, rad, &n );
 
-      buffer[ y * width + x ] = (hit == 1) ? sqrt(n.x.f*n.z.f + n.y.f*n.z.f) : 0.0f;
+      buffer[ y * width + x ] = (hit == 1) ? sqrt(n.x*n.z + n.y*n.z) : 0.0f;
     }
   }
   return buffer;

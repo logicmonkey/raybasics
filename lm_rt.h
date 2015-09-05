@@ -38,25 +38,25 @@ int lm_rt_raytriint( vec3 ro, vec3 rd, vec3 p0, vec3 p1, vec3 p2, float *beta, f
   // The volume calculation is covered in K&S [2006] and also here:
   // http://en.wikipedia.org/wiki/Triple_product#Scalar_triple_product
 
-  edge0 = lm_vec3_sub( p1, p0 ); // vector p0->p1
-  edge1 = lm_vec3_sub( p0, p2 ); // vector p2->p0 (note the direction)
+  lm_vec3_sub( &edge0, p1, p0 ); // vector p0->p1
+  lm_vec3_sub( &edge1, p0, p2 ); // vector p2->p0 (note the direction)
 
   // The actual normal is required (not a unit vector)
-  normal = lm_vec3_cross( edge1, edge0 );
+  lm_vec3_cross( &normal, edge1, edge0 );
 
   // At this point we're finished with p1 and p2. Also note that we could have
   // pre-computed E0, E1 and N and supplied them instead of p1, p2.
 
-  rd = lm_vec3_norm( rd ); // normalise direction in case it hasn't been already
+  lm_vec3_norm( &rd, rd ); // normalise direction in case it hasn't been already
 
   // Calculate the denominator volume V = (E1 X E0).D = N.D
-  v = lm_vec3_dot( normal, rd );
+  lm_vec3_dot( &v, normal, rd );
 
   // Tetrahedron edge from ray origin to first triangle vertex
-  edge2 = lm_vec3_sub( p0, ro );
+  lm_vec3_sub( &edge2, p0, ro );
 
   // Re-using the normal vector at p0, volume Va = (E1 X E0).E2 = N.E2
-  va = lm_vec3_dot( normal, edge2 );
+  lm_vec3_dot( &va, normal, edge2 );
 
   // Distance T = Va/V
   *t = va / v;
@@ -64,13 +64,13 @@ int lm_rt_raytriint( vec3 ro, vec3 rd, vec3 p0, vec3 p1, vec3 p2, float *beta, f
   // Calculate the normal at the ray origin* as this cross product is used
   // more than once. I = D X E2
   // * Note that D and E2 both go through the ray origin by definition
-  interm = lm_vec3_cross( rd, edge2 );
+  lm_vec3_cross( &interm, rd, edge2 );
 
   // Volume V1 = (D X E2).E1 = I.E1
-  v1 = lm_vec3_dot( interm, edge1 );
+  lm_vec3_dot( &v1, interm, edge1 );
 
   // Volume V2 = (D X E2).E0 = I.E0
-  v2 = lm_vec3_dot( interm, edge0 );
+  lm_vec3_dot( &v2, interm, edge0 );
 
   *beta  = v1 / v;
   *gamma = v2 / v;
@@ -95,19 +95,19 @@ int lm_rt_rayboxint( vec3 ro, vec3 rd, vec3 p0, vec3 p1 ) {
 
   vec3 t0, t1;
 
-  rd = lm_vec3_norm( rd );
+  lm_vec3_norm( &rd, rd );
 
   // ---------------------------------------------------------------------------
-  t0.x.f = ( p0.x.f - ro.x.f ) / rd.x.f;
-  t0.y.f = ( p0.y.f - ro.y.f ) / rd.y.f;
-  t0.z.f = ( p0.z.f - ro.z.f ) / rd.z.f;
+  t0.x = ( p0.x - ro.x ) / rd.x;
+  t0.y = ( p0.y - ro.y ) / rd.y;
+  t0.z = ( p0.z - ro.z ) / rd.z;
 
-  t1.x.f = ( p1.x.f - ro.x.f ) / rd.x.f;
-  t1.y.f = ( p1.y.f - ro.y.f ) / rd.y.f;
-  t1.z.f = ( p1.z.f - ro.z.f ) / rd.z.f;
+  t1.x = ( p1.x - ro.x ) / rd.x;
+  t1.y = ( p1.y - ro.y ) / rd.y;
+  t1.z = ( p1.z - ro.z ) / rd.z;
 
-  float tmin = MAX( MIN( t0.x.f, t1.x.f ), MAX( MIN( t0.y.f, t1.y.f ), MIN( t0.z.f, t1.z.f )));
-  float tmax = MIN( MAX( t0.x.f, t1.x.f ), MIN( MAX( t0.y.f, t1.y.f ), MAX( t0.z.f, t1.z.f )));
+  float tmin = MAX( MIN( t0.x, t1.x ), MAX( MIN( t0.y, t1.y ), MIN( t0.z, t1.z )));
+  float tmax = MIN( MAX( t0.x, t1.x ), MIN( MAX( t0.y, t1.y ), MAX( t0.z, t1.z )));
 
   if( tmin <= tmax ) {
     return 1;
@@ -121,14 +121,14 @@ int lm_rt_raysphereint( vec3 ro, vec3 rd, vec3 p0, float rad, vec3 *normal ) {
   float oc_sq, t, gc_sq, hg_sq;
 
   // ray origin to sphere centre and its squared length
-  oc = lm_vec3_sub( p0, ro );
-  oc_sq = lm_vec3_dot( oc, oc );
+  lm_vec3_sub( &oc, p0, ro );
+  lm_vec3_dot( &oc_sq, oc, oc );
 
   // normalise the ray direction
-  rd = lm_vec3_norm( rd );
+  lm_vec3_norm( &rd, rd );
 
   // distance along the ray, of the sphere centre from ray origin
-  t = lm_vec3_dot( oc, rd );
+  lm_vec3_dot( &t, oc, rd );
 
   // pythagoras: oc^2 = gc^2 + t^2
   gc_sq = oc_sq - t*t;
@@ -142,9 +142,11 @@ int lm_rt_raysphereint( vec3 ro, vec3 rd, vec3 p0, float rad, vec3 *normal ) {
   // distance along ray to the intersection point
   t = t - sqrt( hg_sq );
   // p is the intersection point on the sphere
-  p = lm_vec3_add( ro, lm_vec3_scale( t, rd ));
+  lm_vec3_scale( &p, t, rd );
+  lm_vec3_add( &p, ro, p );
   // normal is from the centre to the intersection we could normalise
   // with lm_vec3_norm but we know the radius so just divide by that
-  *normal = lm_vec3_scale( 1.0f/rad, lm_vec3_sub( p, p0 ));
+  lm_vec3_sub( &p, p, p0 );
+  lm_vec3_scale( normal, 1.0f/rad, p );
   return 1;
 }

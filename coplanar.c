@@ -4,25 +4,23 @@
 int main() {
 
   vec3 a, b, c, ab, ac, bc, n;
-  flong vtp;
+  flong t;
 
-  a.x.l = 0xbecf72f9;
-  a.y.l = 0x3ed8c50c;
-  a.z.l = 0xbf4f6fc4;
+  t.l = 0xbecf72f9; a.x = t.f;
+  t.l = 0x3ed8c50c; a.y = t.f;
+  t.l = 0xbf4f6fc4; a.z = t.f;
 
-  b.x.l = 0x44281ac3;
-  b.y.l = 0xc31248d5;
-  b.z.l = 0x4421ffff;
+  t.l = 0x44281ac3; b.x = t.f;
+  t.l = 0xc31248d5; b.y = t.f;
+  t.l = 0x4421ffff; b.z = t.f;
 
-  c.x.l = 0x44258246;
-  c.y.l = 0xc3076f73;
-  c.z.l = 0x441ccf19;
+  t.l = 0x44258246; c.x = t.f;
+  t.l = 0xc3076f73; c.y = t.f;
+  t.l = 0x441ccf19; c.z = t.f;
 
-  ab = lm_vec3_sub( b, a );
-  ab = lm_vec3_norm( ab );
+  lm_vec3_sub( &ab, b, a );
 
-  ac = lm_vec3_sub( c, a );
-  ac = lm_vec3_norm( ac );
+  lm_vec3_sub( &ac, c, a );
 
   // coplanar test (AxB).C = 0
   // i.e. is C also perp to the normal of A and B?
@@ -30,19 +28,21 @@ int main() {
 
   // normal calc
   //
-  n = lm_vec3_cross( ac, ab );
-  n = lm_vec3_norm( n );
+  lm_vec3_cross( &n, ac, ab );
+#ifdef UNITNORMAL
+  lm_vec3_norm( &n, n );
+#endif
 
   // it's a triangle - BC should always be coplanar
 
   // vector to be tested against the normal
   //
-  bc = lm_vec3_sub( c, b );
-  bc = lm_vec3_norm( bc );
+  lm_vec3_sub( &bc, c, b );
 
-  vtp.f = lm_vec3_dot( n, bc );
+  lm_vec3_dot( (float *) &t, n, bc );
 
-  printf( "%f\n", vtp.f );
+  printf( "%f\n", t.f );
+  printf( "%x\n", t.l );
 
   return 0;
 }

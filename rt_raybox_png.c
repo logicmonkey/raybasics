@@ -153,33 +153,33 @@ float *lm_rt_primary_rays( int width, int height ) {
 
   // Set up single triangle
   //
-  p0.x.f = (float) width / 4.0f;
-  p0.y.f = (float) width / 4.0f;
-  p0.z.f = (float) width / 10.0f;
+  p0.x = (float) width / 4.0f;
+  p0.y = (float) width / 4.0f;
+  p0.z = (float) width / 10.0f;
 
-  p1.x.f = p0.x.f * 20.0f;
-  p1.y.f = p0.y.f * 20.0f;
-  p1.z.f = p0.z.f * 10.0f;
+  p1.x = p0.x * 20.0f;
+  p1.y = p0.y * 20.0f;
+  p1.z = p0.z * 10.0f;
 
   // All rays originate from 0,0,0 creating a frustum with one aligned axis
   //
-  ro.x.f = 0.0f;
-  ro.y.f = 0.0f;
-  ro.z.f = 0.0f;
+  ro.x = 0.0f;
+  ro.y = 0.0f;
+  ro.z = 0.0f;
 
   for( y=0; y<height; y++ ) {
     for( x=0; x<width; x++ ) {
 
-       rd.x.f = (float) x;
-       rd.y.f = (float) y;
-       rd.z.f = 8.0f;          // pinhole camera with screen at depth 8.0f
+       rd.x = (float) x;
+       rd.y = (float) y;
+       rd.z = 8.0f;          // pinhole camera with screen at depth 8.0f
 
-       rd = lm_vec3_norm( rd );
+       lm_vec3_norm( &rd, rd );
 
        // test rays against two objects P and Q :)
        t  = lm_rt_rayboxint( ro, rd, p0, p1 );
 
-       buffer[ y * width + x ] = (t == 1) ?  rd.x.f + rd.y.f * rd.z.f : 0.0f;
+       buffer[ y * width + x ] = (t == 1) ?  rd.x + rd.y * rd.z : 0.0f;
     }
   }
 

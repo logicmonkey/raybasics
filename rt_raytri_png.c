@@ -156,45 +156,45 @@ float *lm_rt_primary_rays( int width, int height ) {
 
   // Set up single triangle
   //
-  p0.x.f = (float) width / 4.0f;
-  p0.y.f = (float) height / 4.0f;
-  p0.z.f = 16.0f;
+  p0.x = (float) width / 4.0f;
+  p0.y = (float) height / 4.0f;
+  p0.z = 16.0f;
 
-  p1.x.f = (float) width * 1.8f - 1.0f;
-  p1.y.f = (float) height * 0.9f;
-  p1.z.f = 16.0f;
+  p1.x = (float) width * 1.8f - 1.0f;
+  p1.y = (float) height * 0.9f;
+  p1.z = 16.0f;
 
-  p2.x.f = (float) height * 0.9f;
-  p2.y.f = (float) height * 1.8f - 1.0f;
-  p2.z.f = 16.0f;
+  p2.x = (float) height * 0.9f;
+  p2.y = (float) height * 1.8f - 1.0f;
+  p2.z = 16.0f;
 
   // OK - and another...
-  q0.x.f = p0.x.f;
-  q0.y.f = p0.y.f;
-  q0.z.f = p0.z.f * 6.0f;
+  q0.x = p0.x;
+  q0.y = p0.y;
+  q0.z = p0.z * 6.0f;
 
-  q1.x.f = p1.x.f;
-  q1.y.f = p1.y.f;
-  q1.z.f = p1.z.f * 6.0f;
+  q1.x = p1.x;
+  q1.y = p1.y;
+  q1.z = p1.z * 6.0f;
 
-  q2.x.f = p2.x.f;
-  q2.y.f = p2.y.f;
-  q2.z.f = p2.z.f * 6.0f;
+  q2.x = p2.x;
+  q2.y = p2.y;
+  q2.z = p2.z * 6.0f;
 
   // All rays originate from 0,0,0 creating a frustum with one aligned axis
   //
-  ro.x.f = 0.0f;
-  ro.y.f = 0.0f;
-  ro.z.f = 0.0f;
+  ro.x = 0.0f;
+  ro.y = 0.0f;
+  ro.z = 0.0f;
 
   for( y=0; y<height; y++ ) {
     for( x=0; x<width; x++ ) {
 
-       rd.x.f = (float) x;
-       rd.y.f = (float) y;
-       rd.z.f = 8.0f;          // pinhole camera with screen at depth 8.0f
+       rd.x = (float) x;
+       rd.y = (float) y;
+       rd.z = 8.0f;          // pinhole camera with screen at depth 8.0f
 
-       rd = lm_vec3_norm( rd );
+       lm_vec3_norm( &rd, rd );
 
        // test rays against two objects P and Q :)
        //t  = lm_rt_raytriint( ro, rd, p0, p1, p2 ) | lm_rt_raytriint( ro, rd, q0, q1, q2 );

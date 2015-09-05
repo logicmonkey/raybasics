@@ -10,55 +10,50 @@ typedef union {
 } flong;
 
 typedef struct {
-  flong x, y, z;
+  float x, y, z;
 } vec3;
 
-vec3 lm_vec3_scale( float a, vec3 b ) {
-  vec3 r;
-  r.x.f = a * b.x.f;
-  r.y.f = a * b.y.f;
-  r.z.f = a * b.z.f;
-  return r;
+void lm_vec3_scale( vec3 *r, float a, vec3 b ) {
+  r->x = a * b.x;
+  r->y = a * b.y;
+  r->z = a * b.z;
 }
 
-vec3 lm_vec3_add( vec3 a, vec3 b ) {
-  vec3 r;
-  r.x.f = a.x.f+b.x.f;
-  r.y.f = a.y.f+b.y.f;
-  r.z.f = a.z.f+b.z.f;
-  return r;
+void lm_vec3_add( vec3 *r, vec3 a, vec3 b ) {
+  r->x = a.x + b.x;
+  r->y = a.y + b.y;
+  r->z = a.z + b.z;
 }
 
-vec3 lm_vec3_sub( vec3 a, vec3 b ) {
-  vec3 r;
-  r = lm_vec3_add( a, lm_vec3_scale( -1.0f, b ) );
-  return r;
+void lm_vec3_sub( vec3 *r, vec3 a, vec3 b ) {
+  r->x = a.x - b.x;
+  r->y = a.y - b.y;
+  r->z = a.z - b.z;
 }
 
-float lm_vec3_dot( vec3 a, vec3 b ) {
-  float r;
-  r = a.x.f*b.x.f + a.y.f*b.y.f + a.z.f*b.z.f;
-  return r;
+void lm_vec3_dot( float *r, vec3 a, vec3 b ) {
+  *r = a.x*b.x + a.y*b.y + a.z*b.z;
 }
 
-vec3 lm_vec3_cross( vec3 a, vec3 b ) {
-  vec3 r;
-  r.x.f = a.y.f*b.z.f - a.z.f*b.y.f;
-  r.y.f = a.z.f*b.x.f - a.x.f*b.z.f;
-  r.z.f = a.x.f*b.y.f - a.y.f*b.x.f;
-  return r;
+void lm_vec3_cross( vec3 *r, vec3 a, vec3 b ) {
+  r->x = a.y*b.z - a.z*b.y;
+  r->y = a.z*b.x - a.x*b.z;
+  r->z = a.x*b.y - a.y*b.x;
 }
 
-vec3 lm_vec3_norm( vec3 a ) {
-  vec3 r;
-  float m;
-  m = 1.0f / sqrt( a.x.f*a.x.f + a.y.f*a.y.f + a.z.f*a.z.f );
-  r = lm_vec3_scale( m, a ); 
-  return r;
+void lm_vec3_norm( vec3 *r, vec3 a ) {
+  float m, dp;
+  lm_vec3_dot( &dp, a, a );
+  m = 1.0f / sqrt( dp );
+  lm_vec3_scale( r, m, a );
 }
 
 void lm_vec3_print( vec3 a ) {
-  printf( "%08x %f\n", a.x.l, a.x.f );
-  printf( "%08x %f\n", a.y.l, a.y.f );
-  printf( "%08x %f\n", a.z.l, a.z.f );
+  flong t;
+  t.f = a.x;
+  printf( "%08x %f\n", t.l, t.f );
+  t.f = a.y;
+  printf( "%08x %f\n", t.l, t.f );
+  t.f = a.z;
+  printf( "%08x %f\n", t.l, t.f );
 }
