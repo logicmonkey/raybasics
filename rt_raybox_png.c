@@ -155,10 +155,10 @@ float *lm_rt_primary_rays( int width, int height ) {
   //
 #ifdef MP
   mpfr_init_set_d( p0.x, (float) width / 4.0f, MPFR_RNDN );
-  mpfr_init_set_d( p0.y, (float) height / 4.0f, MPFR_RNDN );
-  mpfr_init_set_d( p0.z, 10.0f, MPFR_RNDN );
+  mpfr_init_set_d( p0.y, (float) width / 4.0f, MPFR_RNDN );
+  mpfr_init_set_d( p0.z, (float) width / 10.0f, MPFR_RNDN );
   mpfr_init_set_d( p1.x, (float) width * 5.0f, MPFR_RNDN );
-  mpfr_init_set_d( p1.y, (float) height * 5.0f, MPFR_RNDN );
+  mpfr_init_set_d( p1.y, (float) width * 5.0f, MPFR_RNDN );
   mpfr_init_set_d( p1.z, (float) width, MPFR_RNDN );
   mpfr_init_set_d( ro.x, 0.0f, MPFR_RNDN );
   mpfr_init_set_d( ro.y, 0.0f, MPFR_RNDN );

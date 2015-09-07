@@ -145,6 +145,9 @@ float *lm_rt_primary_rays( int width, int height ) {
   vec3 p0, p1, p2;
   vec3 q0, q1, q2;
 
+  float p0x, p0y, p0z, p1x, p1y, p1z, p2x, p2y, p2z;
+  float q0x, q0y, q0z, q1x, q1y, q1z, q2x, q2y, q2z;
+
   float beta, gamma, t;
 
   float *buffer = (float *) malloc(width * height * sizeof(float));
@@ -156,55 +159,75 @@ float *lm_rt_primary_rays( int width, int height ) {
 
   // Set up single triangle
   //
-#ifdef MP
-  mpfr_init_set_d( p0.x, (float) width / 4.0f, MPFR_RNDN );
-  mpfr_init_set_d( p0.y, (float) height / 4.0f, MPFR_RNDN );
-  mpfr_init_set_d( p0.z, 16.0f, MPFR_RNDN );
-  mpfr_init_set_d( p1.x, (float) width * 1.8f - 1.0f, MPFR_RNDN );
-  mpfr_init_set_d( p1.y, (float) height * 0.9f, MPFR_RNDN );
-  mpfr_init_set_d( p1.z, 16.0f, MPFR_RNDN );
-  mpfr_init_set_d( p2.x, (float) height * 0.9f, MPFR_RNDN );
-  mpfr_init_set_d( p2.y, (float) height * 1.8f - 1.0f, MPFR_RNDN );
-  mpfr_init_set_d( p2.z, 16.0f, MPFR_RNDN );
+  p0x = (float) width / 4.0f;
+  p0y = (float) height / 4.0f;
+  p0z = 16.0f;
 
-  mpfr_init_set(   q0.x, p0.x, MPFR_RNDN );
-  mpfr_init_set(   q0.y, p0.y, MPFR_RNDN );
-  mpfr_init_set_d( q0.z, 96.0f, MPFR_RNDN );
-  mpfr_init_set(   q1.x, p1.x, MPFR_RNDN );
-  mpfr_init_set(   q1.y, p1.y, MPFR_RNDN );
-  mpfr_init_set_d( q1.z, 96.0f, MPFR_RNDN );
-  mpfr_init_set(   q2.x, p2.x, MPFR_RNDN );
-  mpfr_init_set(   q2.y, p2.y, MPFR_RNDN );
-  mpfr_init_set_d( q2.z, 96.0f, MPFR_RNDN );
+  p1x = (float) width * 1.8f - 1.0f;
+  p1y = (float) height * 0.9f;
+  p1z = 16.0f;
+
+  p2x = (float) height * 0.9f;
+  p2y = (float) height * 1.8f - 1.0f;
+  p2z = 16.0f;
+
+  // OK - and another...
+  q0x = p0x;
+  q0y = p0y;
+  q0z = p0z * 6.0f;
+
+  q1x = p1x;
+  q1y = p1y;
+  q1z = p1z * 6.0f;
+
+  q2x = p2x;
+  q2y = p2y;
+  q2z = p2z * 6.0f;
+
+#ifdef MP
+  mpfr_init_set_d( p0.x, p0x, MPFR_RNDN );
+  mpfr_init_set_d( p0.y, p0y, MPFR_RNDN );
+  mpfr_init_set_d( p0.z, p0z, MPFR_RNDN );
+  mpfr_init_set_d( p1.x, p1x, MPFR_RNDN );
+  mpfr_init_set_d( p1.y, p1y, MPFR_RNDN );
+  mpfr_init_set_d( p1.z, p1z, MPFR_RNDN );
+  mpfr_init_set_d( p2.x, p2x, MPFR_RNDN );
+  mpfr_init_set_d( p2.y, p2y, MPFR_RNDN );
+  mpfr_init_set_d( p2.z, p2z, MPFR_RNDN );
+
+  mpfr_init_set_d( q0.x, q0x, MPFR_RNDN );
+  mpfr_init_set_d( q0.y, q0y, MPFR_RNDN );
+  mpfr_init_set_d( q0.z, q0z, MPFR_RNDN );
+  mpfr_init_set_d( q1.x, q1x, MPFR_RNDN );
+  mpfr_init_set_d( q1.y, q1y, MPFR_RNDN );
+  mpfr_init_set_d( q1.z, q1z, MPFR_RNDN );
+  mpfr_init_set_d( q2.x, q2x, MPFR_RNDN );
+  mpfr_init_set_d( q2.y, q2y, MPFR_RNDN );
+  mpfr_init_set_d( q2.z, q2z, MPFR_RNDN );
 
   mpfr_init_set_d( ro.x, 0.0f, MPFR_RNDN );
   mpfr_init_set_d( ro.y, 0.0f, MPFR_RNDN );
   mpfr_init_set_d( ro.z, 0.0f, MPFR_RNDN );
 #else
-  p0.x = (float) width / 4.0f;
-  p0.y = (float) height / 4.0f;
-  p0.z = 16.0f;
+  p0.x = p0x;
+  p0.y = p0y;
+  p0.z = p0z;
+  p1.x = p1x;
+  p1.y = p1y;
+  p1.z = p1z;
+  p2.x = p2x;
+  p2.y = p2y;
+  p2.z = p2z;
 
-  p1.x = (float) width * 1.8f - 1.0f;
-  p1.y = (float) height * 0.9f;
-  p1.z = 16.0f;
-
-  p2.x = (float) height * 0.9f;
-  p2.y = (float) height * 1.8f - 1.0f;
-  p2.z = 16.0f;
-
-  // OK - and another...
-  q0.x = p0.x;
-  q0.y = p0.y;
-  q0.z = p0.z * 6.0f;
-
-  q1.x = p1.x;
-  q1.y = p1.y;
-  q1.z = p1.z * 6.0f;
-
-  q2.x = p2.x;
-  q2.y = p2.y;
-  q2.z = p2.z * 6.0f;
+  q0.x = q0x;
+  q0.y = q0y;
+  q0.z = q0z;
+  q1.x = q1x;
+  q1.y = q1y;
+  q1.z = q1z;
+  q2.x = q2x;
+  q2.y = q2y;
+  q2.z = q2z;
 
   // All rays originate from 0,0,0 creating a frustum with one aligned axis
   //

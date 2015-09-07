@@ -63,7 +63,7 @@ void lm_vec3_cross( vec3 *r, vec3 a, vec3 b ) {
   mpfr_sub( r->x, t, u, MPFR_RNDN );
 
   mpfr_mul( t, a.z, b.x, MPFR_RNDN );
-  mpfr_mul( u, a.x, b.y, MPFR_RNDN );
+  mpfr_mul( u, a.x, b.z, MPFR_RNDN );
   mpfr_sub( r->y, t, u, MPFR_RNDN );
 
   mpfr_mul( t, a.x, b.y, MPFR_RNDN );
