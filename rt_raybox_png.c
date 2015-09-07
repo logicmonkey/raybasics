@@ -142,6 +142,7 @@ float *lm_rt_primary_rays( int width, int height ) {
   int x, y, t;
   vec3 ro, rd;
 
+  float p0x, p0y, p0z, p1x, p1y, p1z;
   vec3 p0, p1;
 
   float *buffer = (float *) malloc(width * height * sizeof(float));
@@ -151,26 +152,34 @@ float *lm_rt_primary_rays( int width, int height ) {
     return NULL;
   }
 
-  // Set up single triangle
+  // Set up single box
   //
+  p0x = (float) width / 4.0f;
+  p0y = (float) width / 4.0f;
+  p0z = (float) width / 10.0f;
+
+  p1x = p0x * 20.0f;
+  p1y = p0y * 20.0f;
+  p1z = p0z * 10.0f;
+
 #ifdef MP
-  mpfr_init_set_d( p0.x, (float) width / 4.0f, MPFR_RNDN );
-  mpfr_init_set_d( p0.y, (float) width / 4.0f, MPFR_RNDN );
-  mpfr_init_set_d( p0.z, (float) width / 10.0f, MPFR_RNDN );
-  mpfr_init_set_d( p1.x, (float) width * 5.0f, MPFR_RNDN );
-  mpfr_init_set_d( p1.y, (float) width * 5.0f, MPFR_RNDN );
-  mpfr_init_set_d( p1.z, (float) width, MPFR_RNDN );
+  mpfr_init_set_d( p0.x, p0x,  MPFR_RNDN );
+  mpfr_init_set_d( p0.y, p0y,  MPFR_RNDN );
+  mpfr_init_set_d( p0.z, p0z,  MPFR_RNDN );
+  mpfr_init_set_d( p1.x, p1x,  MPFR_RNDN );
+  mpfr_init_set_d( p1.y, p1y,  MPFR_RNDN );
+  mpfr_init_set_d( p1.z, p1z,  MPFR_RNDN );
+
   mpfr_init_set_d( ro.x, 0.0f, MPFR_RNDN );
   mpfr_init_set_d( ro.y, 0.0f, MPFR_RNDN );
   mpfr_init_set_d( ro.z, 0.0f, MPFR_RNDN );
 #else
-  p0.x = (float) width / 4.0f;
-  p0.y = (float) width / 4.0f;
-  p0.z = (float) width / 10.0f;
-
-  p1.x = p0.x * 20.0f;
-  p1.y = p0.y * 20.0f;
-  p1.z = p0.z * 10.0f;
+  p0.x = p0x;
+  p0.y = p0y;
+  p0.z = p0z;
+  p1.x = p1x;
+  p1.y = p1y;
+  p1.z = p1z;
 
   // All rays originate from 0,0,0 creating a frustum with one aligned axis
   //
@@ -194,12 +203,8 @@ float *lm_rt_primary_rays( int width, int height ) {
 
        lm_vec3_norm( &rd, rd );
 
-       // test rays against two objects P and Q :)
+       // test rays against a single box defined by P0 and P1
        t  = lm_rt_rayboxint( ro, rd, p0, p1 );
-
-       if( t == 1 ) {
-         lm_vec3_print( rd );
-       }
 
 #ifdef MP
        buffer[ y * width + x ] = (t == 1) ?  mpfr_get_flt( rd.x, MPFR_RNDN )
