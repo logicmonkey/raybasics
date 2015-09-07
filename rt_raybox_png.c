@@ -153,6 +153,17 @@ float *lm_rt_primary_rays( int width, int height ) {
 
   // Set up single triangle
   //
+#ifdef MP
+  mpfr_init_set_d( p0.x, (float) width / 4.0f, MPFR_RNDN );
+  mpfr_init_set_d( p0.y, (float) height / 4.0f, MPFR_RNDN );
+  mpfr_init_set_d( p0.z, 10.0f, MPFR_RNDN );
+  mpfr_init_set_d( p1.x, (float) width * 5.0f, MPFR_RNDN );
+  mpfr_init_set_d( p1.y, (float) height * 5.0f, MPFR_RNDN );
+  mpfr_init_set_d( p1.z, (float) width, MPFR_RNDN );
+  mpfr_init_set_d( ro.x, 0.0f, MPFR_RNDN );
+  mpfr_init_set_d( ro.y, 0.0f, MPFR_RNDN );
+  mpfr_init_set_d( ro.z, 0.0f, MPFR_RNDN );
+#else
   p0.x = (float) width / 4.0f;
   p0.y = (float) width / 4.0f;
   p0.z = (float) width / 10.0f;
@@ -166,22 +177,53 @@ float *lm_rt_primary_rays( int width, int height ) {
   ro.x = 0.0f;
   ro.y = 0.0f;
   ro.z = 0.0f;
+#endif
 
   for( y=0; y<height; y++ ) {
     for( x=0; x<width; x++ ) {
 
+#ifdef MP
+       mpfr_init_set_d( rd.x, (float) x, MPFR_RNDN );
+       mpfr_init_set_d( rd.y, (float) y, MPFR_RNDN );
+       mpfr_init_set_d( rd.z, 8.0f, MPFR_RNDN );
+#else
        rd.x = (float) x;
        rd.y = (float) y;
        rd.z = 8.0f;          // pinhole camera with screen at depth 8.0f
+#endif
 
        lm_vec3_norm( &rd, rd );
 
        // test rays against two objects P and Q :)
        t  = lm_rt_rayboxint( ro, rd, p0, p1 );
 
+       if( t == 1 ) {
+         lm_vec3_print( rd );
+       }
+
+#ifdef MP
+       buffer[ y * width + x ] = (t == 1) ?  mpfr_get_flt( rd.x, MPFR_RNDN )
+                                           + mpfr_get_flt( rd.y, MPFR_RNDN )
+                                           * mpfr_get_flt( rd.z, MPFR_RNDN ) : 0.0f;
+#else
        buffer[ y * width + x ] = (t == 1) ?  rd.x + rd.y * rd.z : 0.0f;
+#endif
     }
   }
 
+#ifdef MP
+  mpfr_clear( p0.x );
+  mpfr_clear( p0.y );
+  mpfr_clear( p0.z );
+  mpfr_clear( p1.x );
+  mpfr_clear( p1.y );
+  mpfr_clear( p1.z );
+  mpfr_clear( ro.x );
+  mpfr_clear( ro.y );
+  mpfr_clear( ro.z );
+  mpfr_clear( rd.x );
+  mpfr_clear( rd.y );
+  mpfr_clear( rd.z );
+#endif
   return buffer;
 }

@@ -1,4 +1,8 @@
+#ifdef MP
+#include "lm_vec3mp.h"
+#else
 #include "lm_vec3.h"
+#endif
 
 // the MIN and MAX macros are defined in sys/param.h but define for portability:
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -22,10 +26,42 @@ int lm_rt_raytriint( vec3 ro, vec3 rd, vec3 p0, vec3 p1, vec3 p2, float *beta, f
   vec3 edge2;      // tetrahedron edge ro -> p0 (not an obvious variable name)
   vec3 interm;     // normal at ro = e2 X rd used and re-used in volume calcs
 
+#ifdef MP
+  mpfr_t v;        // total volume used in t calc and barycentric denominator
+  mpfr_t va;       // numerator volume for t calc
+  mpfr_t v1;       // numerator volume for beta barycentric
+  mpfr_t v2;       // numerator volume for gamma barycentric
+
+  mpfr_init( v );
+  mpfr_init( va );
+  mpfr_init( v1 );
+  mpfr_init( v2 );
+
+  mpfr_init( edge0.x );
+  mpfr_init( edge0.y );
+  mpfr_init( edge0.z );
+  mpfr_init( edge1.x );
+  mpfr_init( edge1.y );
+  mpfr_init( edge1.z );
+  mpfr_init( edge2.x );
+  mpfr_init( edge2.y );
+  mpfr_init( edge2.z );
+  mpfr_init( normal.x );
+  mpfr_init( normal.y );
+  mpfr_init( normal.z );
+  mpfr_init( interm.x );
+  mpfr_init( interm.y );
+  mpfr_init( interm.z );
+#else
   float v;         // total volume used in t calc and barycentric denominator
   float va;        // numerator volume for t calc
   float v1;        // numerator volume for beta barycentric
   float v2;        // numerator volume for gamma barycentric
+#endif
+
+  float cmp_v;
+  float cmp_v1;
+  float cmp_v2;
 
   // OUTPUTS
   // float t;           // distance to intersection point
@@ -59,7 +95,14 @@ int lm_rt_raytriint( vec3 ro, vec3 rd, vec3 p0, vec3 p1, vec3 p2, float *beta, f
   lm_vec3_dot( &va, normal, edge2 );
 
   // Distance T = Va/V
+#ifdef MP
+  mpfr_t mp_temp;
+  mpfr_init( mp_temp );
+  mpfr_div( mp_temp, va, v, MPFR_RNDN );
+  *t = mpfr_get_flt( mp_temp, MPFR_RNDN );
+#else
   *t = va / v;
+#endif
 
   // Calculate the normal at the ray origin* as this cross product is used
   // more than once. I = D X E2
@@ -72,10 +115,43 @@ int lm_rt_raytriint( vec3 ro, vec3 rd, vec3 p0, vec3 p1, vec3 p2, float *beta, f
   // Volume V2 = (D X E2).E0 = I.E0
   lm_vec3_dot( &v2, interm, edge0 );
 
+#ifdef MP
+  mpfr_div( mp_temp, v1, v, MPFR_RNDN );
+  *beta = mpfr_get_flt( mp_temp, MPFR_RNDN );
+  mpfr_div( mp_temp, v2, v, MPFR_RNDN );
+  *gamma = mpfr_get_flt( mp_temp, MPFR_RNDN );
+  cmp_v  = mpfr_get_flt( v, MPFR_RNDN );
+  cmp_v1 = mpfr_get_flt( v1, MPFR_RNDN );
+  cmp_v2 = mpfr_get_flt( v2, MPFR_RNDN );
+  mpfr_clear( edge0.x );
+  mpfr_clear( edge0.y );
+  mpfr_clear( edge0.z );
+  mpfr_clear( edge1.x );
+  mpfr_clear( edge1.y );
+  mpfr_clear( edge1.z );
+  mpfr_clear( edge2.x );
+  mpfr_clear( edge2.y );
+  mpfr_clear( edge2.z );
+  mpfr_clear( normal.x );
+  mpfr_clear( normal.y );
+  mpfr_clear( normal.z );
+  mpfr_clear( interm.x );
+  mpfr_clear( interm.y );
+  mpfr_clear( interm.z );
+  mpfr_clear( mp_temp );
+  mpfr_clear( v );
+  mpfr_clear( va );
+  mpfr_clear( v1 );
+  mpfr_clear( v2 );
+#else
   *beta  = v1 / v;
   *gamma = v2 / v;
+  cmp_v  = v;
+  cmp_v1 = v1;
+  cmp_v2 = v2;
+#endif
 
-  if ((( v1 < 0.0f && v2 < 0.0f && v < 0.0f) || (v1 > 0.0f && v2 > 0.0f && v > 0.0f) ) && ((v1 + v2) <= v) && (*beta >= 0.0f) && (*gamma >= 0.0f) && ((*beta + *gamma) < 1.0f)) {
+  if ((( cmp_v1 < 0.0f && cmp_v2 < 0.0f && cmp_v < 0.0f) || (cmp_v1 > 0.0f && cmp_v2 > 0.0f && cmp_v > 0.0f) ) && ((cmp_v1 + cmp_v2) <= cmp_v) && (*beta >= 0.0f) && (*gamma >= 0.0f) && ((*beta + *gamma) < 1.0f)) {
     return 1;
   }
   return 0;
@@ -93,21 +169,65 @@ int lm_rt_rayboxint( vec3 ro, vec3 rd, vec3 p0, vec3 p1 ) {
 
   // INTERNALS
 
-  vec3 t0, t1;
+  float t0x, t0y, t0z, t1x, t1y, t1z;
 
   lm_vec3_norm( &rd, rd );
 
   // ---------------------------------------------------------------------------
-  t0.x = ( p0.x - ro.x ) / rd.x;
-  t0.y = ( p0.y - ro.y ) / rd.y;
-  t0.z = ( p0.z - ro.z ) / rd.z;
 
-  t1.x = ( p1.x - ro.x ) / rd.x;
-  t1.y = ( p1.y - ro.y ) / rd.y;
-  t1.z = ( p1.z - ro.z ) / rd.z;
+  vec3 t0, t1;
+#ifdef MP
+  mpfr_init( t0.x );
+  mpfr_init( t0.y );
+  mpfr_init( t0.z );
+  mpfr_init( t1.x );
+  mpfr_init( t1.y );
+  mpfr_init( t1.z );
+#endif
+  lm_vec3_sub( &t0, p0, ro );
+  lm_vec3_sub( &t1, p1, ro );
 
-  float tmin = MAX( MIN( t0.x, t1.x ), MAX( MIN( t0.y, t1.y ), MIN( t0.z, t1.z )));
-  float tmax = MIN( MAX( t0.x, t1.x ), MIN( MAX( t0.y, t1.y ), MAX( t0.z, t1.z )));
+#ifdef MP
+  mpfr_t mp_temp;
+  mpfr_init( mp_temp );
+
+  mpfr_div( mp_temp, t0.x, rd.x, MPFR_RNDN );
+  t0x = mpfr_get_flt( mp_temp, MPFR_RNDN );
+  mpfr_div( mp_temp, t0.y, rd.y, MPFR_RNDN );
+  t0y = mpfr_get_flt( mp_temp, MPFR_RNDN );
+  mpfr_div( mp_temp, t0.z, rd.z, MPFR_RNDN );
+  t0z = mpfr_get_flt( mp_temp, MPFR_RNDN );
+
+  mpfr_div( mp_temp, t1.x, rd.x, MPFR_RNDN );
+  t1x = mpfr_get_flt( mp_temp, MPFR_RNDN );
+  mpfr_div( mp_temp, t1.y, rd.y, MPFR_RNDN );
+  t1y = mpfr_get_flt( mp_temp, MPFR_RNDN );
+  mpfr_div( mp_temp, t1.z, rd.z, MPFR_RNDN );
+  t1z = mpfr_get_flt( mp_temp, MPFR_RNDN );
+
+  mpfr_clear( mp_temp );
+#else
+
+  t0x = t0.x / rd.x;
+  t0y = t0.y / rd.y;
+  t0z = t0.z / rd.z;
+
+  t1x = t1.x / rd.x;
+  t1y = t1.y / rd.y;
+  t1z = t1.z / rd.z;
+#endif
+
+  float tmin = MAX( MIN( t0x, t1x ), MAX( MIN( t0y, t1y ), MIN( t0z, t1z )));
+  float tmax = MIN( MAX( t0x, t1x ), MIN( MAX( t0y, t1y ), MAX( t0z, t1z )));
+
+#ifdef MP
+  mpfr_clear( t0.x );
+  mpfr_clear( t0.y );
+  mpfr_clear( t0.z );
+  mpfr_clear( t1.x );
+  mpfr_clear( t1.y );
+  mpfr_clear( t1.z );
+#endif
 
   if( tmin <= tmax ) {
     return 1;
@@ -116,6 +236,7 @@ int lm_rt_rayboxint( vec3 ro, vec3 rd, vec3 p0, vec3 p1 ) {
   return 0;
 }
 
+/*
 int lm_rt_raysphereint( vec3 ro, vec3 rd, vec3 p0, float rad, vec3 *normal ) {
   vec3 oc, p;
   float oc_sq, t, gc_sq, hg_sq;
@@ -150,3 +271,4 @@ int lm_rt_raysphereint( vec3 ro, vec3 rd, vec3 p0, float rad, vec3 *normal ) {
   lm_vec3_scale( normal, 1.0f/rad, p );
   return 1;
 }
+*/

@@ -156,6 +156,31 @@ float *lm_rt_primary_rays( int width, int height ) {
 
   // Set up single triangle
   //
+#ifdef MP
+  mpfr_init_set_d( p0.x, (float) width / 4.0f, MPFR_RNDN );
+  mpfr_init_set_d( p0.y, (float) height / 4.0f, MPFR_RNDN );
+  mpfr_init_set_d( p0.z, 16.0f, MPFR_RNDN );
+  mpfr_init_set_d( p1.x, (float) width * 1.8f - 1.0f, MPFR_RNDN );
+  mpfr_init_set_d( p1.y, (float) height * 0.9f, MPFR_RNDN );
+  mpfr_init_set_d( p1.z, 16.0f, MPFR_RNDN );
+  mpfr_init_set_d( p2.x, (float) height * 0.9f, MPFR_RNDN );
+  mpfr_init_set_d( p2.y, (float) height * 1.8f - 1.0f, MPFR_RNDN );
+  mpfr_init_set_d( p2.z, 16.0f, MPFR_RNDN );
+
+  mpfr_init_set(   q0.x, p0.x, MPFR_RNDN );
+  mpfr_init_set(   q0.y, p0.y, MPFR_RNDN );
+  mpfr_init_set_d( q0.z, 96.0f, MPFR_RNDN );
+  mpfr_init_set(   q1.x, p1.x, MPFR_RNDN );
+  mpfr_init_set(   q1.y, p1.y, MPFR_RNDN );
+  mpfr_init_set_d( q1.z, 96.0f, MPFR_RNDN );
+  mpfr_init_set(   q2.x, p2.x, MPFR_RNDN );
+  mpfr_init_set(   q2.y, p2.y, MPFR_RNDN );
+  mpfr_init_set_d( q2.z, 96.0f, MPFR_RNDN );
+
+  mpfr_init_set_d( ro.x, 0.0f, MPFR_RNDN );
+  mpfr_init_set_d( ro.y, 0.0f, MPFR_RNDN );
+  mpfr_init_set_d( ro.z, 0.0f, MPFR_RNDN );
+#else
   p0.x = (float) width / 4.0f;
   p0.y = (float) height / 4.0f;
   p0.z = 16.0f;
@@ -186,13 +211,20 @@ float *lm_rt_primary_rays( int width, int height ) {
   ro.x = 0.0f;
   ro.y = 0.0f;
   ro.z = 0.0f;
+#endif
 
   for( y=0; y<height; y++ ) {
     for( x=0; x<width; x++ ) {
 
+#ifdef MP
+       mpfr_init_set_d( rd.x, (float) x, MPFR_RNDN );
+       mpfr_init_set_d( rd.y, (float) y, MPFR_RNDN );
+       mpfr_init_set_d( rd.z, 8.0f, MPFR_RNDN );
+#else
        rd.x = (float) x;
        rd.y = (float) y;
        rd.z = 8.0f;          // pinhole camera with screen at depth 8.0f
+#endif
 
        lm_vec3_norm( &rd, rd );
 
@@ -206,5 +238,31 @@ float *lm_rt_primary_rays( int width, int height ) {
     }
   }
 
+#ifdef MP
+  mpfr_clear( p0.x );
+  mpfr_clear( p0.y );
+  mpfr_clear( p0.z );
+  mpfr_clear( p1.x );
+  mpfr_clear( p1.y );
+  mpfr_clear( p1.z );
+  mpfr_clear( p2.x );
+  mpfr_clear( p2.y );
+  mpfr_clear( p2.z );
+  mpfr_clear( q0.x );
+  mpfr_clear( q0.y );
+  mpfr_clear( q0.z );
+  mpfr_clear( q1.x );
+  mpfr_clear( q1.y );
+  mpfr_clear( q1.z );
+  mpfr_clear( q2.x );
+  mpfr_clear( q2.y );
+  mpfr_clear( q2.z );
+  mpfr_clear( ro.x );
+  mpfr_clear( ro.y );
+  mpfr_clear( ro.z );
+  mpfr_clear( rd.x );
+  mpfr_clear( rd.y );
+  mpfr_clear( rd.z );
+#endif
   return buffer;
 }
