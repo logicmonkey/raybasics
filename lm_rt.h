@@ -236,10 +236,25 @@ int lm_rt_rayboxint( vec3 ro, vec3 rd, vec3 p0, vec3 p1 ) {
   return 0;
 }
 
-/*
 int lm_rt_raysphereint( vec3 ro, vec3 rd, vec3 p0, float rad, vec3 *normal ) {
   vec3 oc, p;
-  float oc_sq, t, gc_sq, hg_sq;
+#ifdef MP
+  mpfr_init( oc.x );
+  mpfr_init( oc.y );
+  mpfr_init( oc.z );
+  mpfr_init( p.x );
+  mpfr_init( p.y );
+  mpfr_init( p.z );
+  mpfr_t oc_sq, t, gc_sq, hg_sq, invrad, temp;
+  mpfr_init( oc_sq );
+  mpfr_init(   t   );
+  mpfr_init( gc_sq );
+  mpfr_init( hg_sq );
+  mpfr_init_set_d( invrad, rad, MPFR_RNDN );
+  mpfr_init( temp );
+#else
+  float oc_sq, t, gc_sq, hg_sq, invrad;
+#endif
 
   // ray origin to sphere centre and its squared length
   lm_vec3_sub( &oc, p0, ro );
@@ -251,24 +266,59 @@ int lm_rt_raysphereint( vec3 ro, vec3 rd, vec3 p0, float rad, vec3 *normal ) {
   // distance along the ray, of the sphere centre from ray origin
   lm_vec3_dot( &t, oc, rd );
 
+#ifdef MP
+  mpfr_mul( temp, t, t, MPFR_RNDN );
+  mpfr_sub( gc_sq, oc_sq, temp, MPFR_RNDN );
+  mpfr_set_d( temp, rad, MPFR_RNDN );
+  mpfr_mul( temp, temp, temp, MPFR_RNDN ); // rad^2
+  mpfr_sub( hg_sq, temp, gc_sq, MPFR_RNDN );
+  mpfr_sqrt( temp, hg_sq, MPFR_RNDN );
+  mpfr_sub( t, t, temp, MPFR_RNDN );
+  mpfr_set_d( temp, 1.0f, MPFR_RNDN );
+  mpfr_div( invrad, temp, invrad, MPFR_RNDN );
+#else
   // pythagoras: oc^2 = gc^2 + t^2
   gc_sq = oc_sq - t*t;
 
   // r^2 = hg^2 + gc^2
   hg_sq = rad*rad - gc_sq;
 
+  // distance along ray to the intersection point
+  t = t - sqrt( hg_sq );
+
   if( hg_sq < 0.0f ) {
     return 0;
   }
-  // distance along ray to the intersection point
-  t = t - sqrt( hg_sq );
+
+  invrad = 1.0f/rad;
+#endif
+
   // p is the intersection point on the sphere
   lm_vec3_scale( &p, t, rd );
   lm_vec3_add( &p, ro, p );
   // normal is from the centre to the intersection we could normalise
   // with lm_vec3_norm but we know the radius so just divide by that
   lm_vec3_sub( &p, p, p0 );
-  lm_vec3_scale( normal, 1.0f/rad, p );
+  lm_vec3_scale( normal, invrad, p );
+
+#ifdef MP
+  mpfr_clear( temp );
+  mpfr_clear( oc.x );
+  mpfr_clear( oc.y );
+  mpfr_clear( oc.z );
+  mpfr_clear( p.x );
+  mpfr_clear( p.y );
+  mpfr_clear( p.z );
+  mpfr_clear( oc_sq );
+  mpfr_clear(   t   );
+  mpfr_clear( gc_sq );
+  mpfr_clear( invrad );
+  if( mpfr_signbit( hg_sq ) ) {
+    mpfr_clear( hg_sq );
+    return 0;
+  }
+  mpfr_clear( hg_sq );
+#endif
+
   return 1;
 }
-*/
