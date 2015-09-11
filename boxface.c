@@ -16,28 +16,12 @@ void lm_a_dot_b_cross_c( int *s, vec3 a, vec3 b, vec3 c, vec3 ro ) {
 }
 int main() {
 
-  vec3 o, a, b, c, d, ro, rd, r;
+  vec3 a, b, c, d, ro, rd, r;
   int t0, t1, t2, t3;
 
-  o.x = 0.0f;
-  o.y = 0.0f;
-  o.z = 0.0f;
-
-  a.x = -10.0f;
-  a.y =  10.0f;
-  a.z =   1.0f;
-
-  b.x =  10.0f;
-  b.y =  10.0f;
-  b.z =   1.0f;
-
-  c.x =  10.0f;
-  c.y = -10.0f;
-  c.z =   1.0f;
-
-  d.x = -10.0f;
-  d.y = -10.0f;
-  d.z =   1.0f;
+  a.x = -10.0f; b.x = 10.0f; c.x =  10.0f; d.x = -10.0f;
+  a.y =  10.0f; b.y = 10.0f; c.y = -10.0f; d.y = -10.0f;
+  a.z =   1.0f; b.z =  1.0f; c.z =   1.0f; d.z =   1.0f;
 
   ro.x =  0.0f;
   ro.y =  0.0f;
