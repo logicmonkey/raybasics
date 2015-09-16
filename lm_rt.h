@@ -322,3 +322,146 @@ int lm_rt_raysphereint( vec3 ro, vec3 rd, vec3 p0, float rad, vec3 *normal ) {
 
   return 1;
 }
+
+int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
+  vec3 ad, bo, v1, v2, v3, v4, v5, v6;
+  int t01, t12, t23, t30, t45, t56, t67, t74, t14, t72, t36, t50;
+  int a, b, c, d, e, f;
+
+/*
+  Vertex numbering - 0 and 7 diagonally opposite
+
+       6-----------5
+       |\          .\
+       | 3-----------0
+       | |         . |       ^
+       | |         . |      y|             4-----------5
+       | |         . |       |             |     45    |
+       7.|.........4 |       |             |           |
+        \|          `|     --+------->     |74   F   56|
+         2-----------1       |      x      |           |
+                                           |     67    |
+       6-----------5-----------4-----------7-----------6
+       |    ~56    |    ~45    |    ~74    |    ~67    |
+       |           |           |           |           |
+       |~36  B  ~50|50   C   14|~14  D  ~72|72   E   36|
+       |           |           |           |           |
+       |    ~30    |    ~01    |    ~12    |    ~23    |
+       3-----------0-----------1-----------2-----------3
+       |     30    |
+       |           |
+       |23   A   01|
+       |           |
+       |     12    |
+       2-----------1
+*/
+
+  // steal the appropriate x,y,z positions for V1...V6 from V0 and V7
+  v1   = v0;
+  v1.y = v7.y;
+
+  v2   = v7;
+  v2.z = v1.z;
+
+  v3   = v0;
+  v3.x = v7.x;
+
+  v6   = v7;
+  v6.y = v0.y;
+
+  v5   = v0;
+  v5.z = v7.z;
+
+  v4   = v1;
+  v4.z = v7.z;
+
+  // Face A
+
+  lm_vec3_sub( &bo, ro, v0 ); // vertex to ray origin
+  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+
+  t01 = ((ad.z*bo.x-ad.x*bo.z) > 0) ? 1 : 0; // edge vector y component -ve
+
+  lm_vec3_sub( &bo, ro, v1 ); // vertex to ray origin
+  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+
+  t12 = ((ad.y*bo.z-ad.z*bo.y) > 0) ? 1 : 0; // edge vector x component -ve
+
+  lm_vec3_sub( &bo, ro, v2 ); // vertex to ray origin
+  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+
+  t23 = ((ad.z*bo.x-ad.x*bo.z) < 0) ? 1 : 0; // edge vector y component +ve
+
+  lm_vec3_sub( &bo, ro, v3 ); // vertex to ray origin
+  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+
+  t30 = ((ad.y*bo.z-ad.z*bo.y) < 0) ? 1 : 0; // edge vector x component +ve
+
+  // Face F
+
+  lm_vec3_sub( &bo, ro, v6 ); // vertex to ray origin
+  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+
+  t67 = ((ad.z*bo.x-ad.x*bo.z) > 0) ? 1 : 0; // edge vector y component -ve
+
+  lm_vec3_sub( &bo, ro, v7 ); // vertex to ray origin
+  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+
+  t74 = ((ad.y*bo.z-ad.z*bo.y) < 0) ? 1 : 0; // edge vector x component +ve
+
+  lm_vec3_sub( &bo, ro, v4 ); // vertex to ray origin
+  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+
+  t45 = ((ad.z*bo.x-ad.x*bo.z) < 0) ? 1 : 0; // edge vector y component +ve
+
+  lm_vec3_sub( &bo, ro, v5 ); // vertex to ray origin
+  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+
+  t56 = ((ad.y*bo.z-ad.z*bo.y) > 0) ? 1 : 0; // edge vector x component -ve
+
+  // Face B
+  lm_vec3_sub( &bo, ro, v3 ); // vertex to ray origin
+  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+
+  t36 = ((ad.y*bo.x-ad.x*bo.y) > 0) ? 1 : 0; // edge vector z component -ve
+
+  lm_vec3_sub( &bo, ro, v5 ); // vertex to ray origin
+  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+
+  t50 = ((ad.y*bo.x-ad.x*bo.y) < 0) ? 1 : 0; // edge vector z component +ve
+
+  // Face D
+  lm_vec3_sub( &bo, ro, v4 ); // vertex to ray origin
+  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+
+  t14 = ((ad.y*bo.x-ad.x*bo.y) > 0) ? 1 : 0; // edge vector z component -ve
+
+  lm_vec3_sub( &bo, ro, v7 ); // vertex to ray origin
+  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+
+  t72 = ((ad.y*bo.x-ad.x*bo.y) < 0) ? 1 : 0; // edge vector z component +ve
+
+  if( debug==1 ) {
+    printf( "t01: %d\n", t01 );
+    printf( "t12: %d\n", t12 );
+    printf( "t23: %d\n", t23 );
+    printf( "t30: %d\n", t30 );
+    printf( "t45: %d\n", t45 );
+    printf( "t56: %d\n", t56 );
+    printf( "t67: %d\n", t67 );
+    printf( "t74: %d\n", t74 );
+    printf( "t50: %d\n", t50 );
+    printf( "t14: %d\n", t14 );
+    printf( "t72: %d\n", t72 );
+    printf( "t36: %d\n", t36 );
+  }
+
+  a = ( t01 &  t12 &  t23 &  t30 ) & 1;
+  b = (~t50 & ~t30 & ~t36 & ~t56 ) & 1;
+  c = ( t14 & ~t01 &  t50 & ~t45 ) & 1;
+  d = (~t72 & ~t12 & ~t14 & ~t74 ) & 1;
+  e = ( t36 & ~t23 &  t72 & ~t67 ) & 1;
+  f = ( t45 &  t56 &  t67 &  t74 ) & 1;
+
+  return a|b|c|d|e|f;
+}
