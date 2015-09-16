@@ -141,12 +141,12 @@ char lm_raybox( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
   e = ( t36 & ~t23 &  t72 & ~t67 ) & 1;
   f = ( t45 &  t56 &  t67 &  t74 ) & 1;
 
-  if( a==0 ){ return 'A'; };
-  if( b==0 ){ return 'B'; };
-  if( c==0 ){ return 'C'; };
-  if( d==0 ){ return 'D'; };
-  if( e==0 ){ return 'E'; };
-  if( f==0 ){ return 'F'; };
+  if( a==1 ){ return 'A'; };
+  if( b==1 ){ return 'B'; };
+  if( c==1 ){ return 'C'; };
+  if( d==1 ){ return 'D'; };
+  if( e==1 ){ return 'E'; };
+  if( f==1 ){ return 'F'; };
   return '0';
 }
 
