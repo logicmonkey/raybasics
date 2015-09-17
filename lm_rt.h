@@ -417,6 +417,7 @@ int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
       sign check.
 
     Flop summary:
+
       12 box edges X
         3 FP fpsub (Bo)
         3 FP fpadd (Ar)
@@ -435,6 +436,20 @@ int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
       additionally picks up any error from adding Rd.
 
       Errors in Bo and Ar are multiplied before applying the sign test.
+
+    Alternative Calculation of Vector Ar
+
+      Per box, the point r = ro+Rd can be pre-caclulated with 3 FP adds.
+      Per edge test, vector Ar = r - v (3 FP subs)
+
+      This is an overhead of 3 FP adds per box, but it removes Ar's dependence
+      on Bo and its error.
+
+      This approach does not look as though it carries any real benefit over
+      the one already taken.
+
+      Other pre-calculations could be possible since the box vertices and ray
+      origin position are fixed points in space.
 
 ------------------------------------------------------------------------------*/
 
