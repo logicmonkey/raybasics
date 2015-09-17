@@ -331,15 +331,15 @@ int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
 /*
   Vertex numbering - 0 and 7 diagonally opposite
 
-       6-----------5
-       |\          .\
-       | 3-----------0
-       | |         . |       ^
-       | |         . |      y|             4-----------5
-       | |         . |       |             |     45    |
-       7.|.........4 |       |             |           |
-        \|          `|     --+------->     |74   F   56|
-         2-----------1       |      x      |           |
+         6-----------5
+        /.          /|        ^
+       3-----------0 |       y|
+       | .         | |        |
+       | .         | |        |/           4-----------5
+       | .         | |      --+------->    |     45    |
+       | 7.........|.4       /|      x     |           |
+       |'          |/       /              |74   F   56|
+       2-----------1      z/               |           |
                                            |     67    |
        6-----------5-----------4-----------7-----------6
        |    ~56    |    ~45    |    ~74    |    ~67    |
@@ -353,10 +353,58 @@ int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
        |23   A   01|
        |           |
        |     12    |
-       2-----------1
+       2-----------1                       ->
+                                        ro+Rd
+                                          *
+                                         ,.
+                                      , / .
+                                   ,   /  .  ->      ->
+                                ,     /   .  Ar = ro+Rd - v
+                             ,       /    .       -> ->
+                          ,         /     .     = Bo+Rd
+                     v' *- - - - - / - - -* v
+                         .        /     ,'
+                                 /    ,'
+                          .     /   ,'       ->
+                               /  ,'         Bo = ro-v
+                           .  / ,'
+                             /,'
+                            .'
+                           ro
+
+      v is a known vertex on the AA box, then the vector vv' = v'-v has a single
+      x, y or z component depending on v' position relative to v.
+
+      A ray has origin ro and direction vector Rd.
+
+      Tetrahedron edge vectors Ar and Bo are easily found.
+
+      A signed parallelepiped volume is given by the scalar triple product
+
+          vol =  vv'.ArxBo
+
+      where
+                     ,              .
+                    |   i    j    k  |
+          ArxBo= det| Ar.x Ar.y Ar.z |
+                    | Bo.x Bo.y Bo.z |
+                     `              '
+
+      The orientation of Rd relative to vv' is given by the sign of the volume.
+      Since vv' is sparse, the scalar triple product uses just one cofactor of
+      the determinant. Only the sign of the vv' component is required and this
+      is implicit within the AA box vertex ordering.
+
+      The relative orientation indicates which side of a box edge a ray passes.
+
+      AA box faces are tested one by one.
+
+      Cofactors could use a magnitude comparison rather than a subtract and
+      sign check.
+
 */
 
-  // steal the appropriate x,y,z positions for V1...V6 from V0 and V7
+  // copy the appropriate x,y,z positions for V1...V6 from V0 and V7
   v1   = v0;
   v1.y = v7.y;
 
