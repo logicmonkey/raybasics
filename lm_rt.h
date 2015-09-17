@@ -324,12 +324,17 @@ int lm_rt_raysphereint( vec3 ro, vec3 rd, vec3 p0, float rad, vec3 *normal ) {
 }
 
 int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
-  vec3 ad, bo, v1, v2, v3, v4, v5, v6;
+  vec3 ar, bo, v1, v2, v3, v4, v5, v6;
   int t01, t12, t23, t30, t45, t56, t67, t74, t14, t72, t36, t50;
   int a, b, c, d, e, f;
 
-/*
-  Vertex numbering - 0 and 7 diagonally opposite
+/*------------------------------------------------------------------------------
+   Ray/Box intersection test
+
+    A purely geometric approach is taken without using Pluecker coordinates or
+    floating point division.
+
+       Vertex numbering - v0 and v7 diagonally opposite
 
          6-----------5
         /.          /|        ^
@@ -338,7 +343,7 @@ int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
        | .         | |        |/           4-----------5
        | .         | |      --+------->    |     45    |
        | 7.........|.4       /|      x     |           |
-       |'          |/       /              |74   F   56|
+       |.          |/       /              |74   F   56|
        2-----------1      z/               |           |
                                            |     67    |
        6-----------5-----------4-----------7-----------6
@@ -353,7 +358,10 @@ int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
        |23   A   01|
        |           |
        |     12    |
-       2-----------1                       ->
+       2-----------1
+
+    Geometric View of Intersection:
+                                           ->
                                         ro+Rd
                                           *
                                          ,.
@@ -377,18 +385,23 @@ int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
 
       A ray has origin ro and direction vector Rd.
 
-      Tetrahedron edge vectors Ar and Bo are easily found.
+      Rd can be a normalised (unit) direction vector.
 
-      A signed parallelepiped volume is given by the scalar triple product
+      Tetrahedron edge vectors Ar and Bo are easily found:
 
-          vol =  vv'.ArxBo
+          Bo = ro - v
+          Ar = Bo + Rd
+
+      A signed parallelepiped volume is represented by the scalar triple product
+
+          vol =  vv'.(Ar x Bo)
 
       where
-                     ,              .
-                    |   i    j    k  |
-          ArxBo= det| Ar.x Ar.y Ar.z |
-                    | Bo.x Bo.y Bo.z |
-                     `              '
+                        ,              .
+                       |   i    j    k  |
+          Ar x Bo = det| Ar.x Ar.y Ar.z |
+                       | Bo.x Bo.y Bo.z |
+                        `              '
 
       The orientation of Rd relative to vv' is given by the sign of the volume.
       Since vv' is sparse, the scalar triple product uses just one cofactor of
@@ -397,12 +410,33 @@ int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
 
       The relative orientation indicates which side of a box edge a ray passes.
 
-      AA box faces are tested one by one.
+      AA box faces are tested one by one but this could be done concurrently
+      in hardware.
 
       Cofactors could use a magnitude comparison rather than a subtract and
       sign check.
 
-*/
+    Flop summary:
+      12 box edges X
+        3 FP fpsub (Bo)
+        3 FP fpadd (Ar)
+        2 FP fpmul (cofactor)
+        1 FP fpsub | mag comparator
+
+        TOTAL 24 fpmul + 84 fpadd
+
+    Error Propagation:
+
+      Box vertex positions v are assumed to be exact.
+      Ray origin ro and direction Rd are assumed to be exact.
+
+      The box vertex position relative to the ray origin is calculated as the
+      vector Bo. Any error in Bo is directly propagated to vector Ar which
+      additionally picks up any error from adding Rd.
+
+      Errors in Bo and Ar are multiplied before applying the sign test.
+
+------------------------------------------------------------------------------*/
 
   // copy the appropriate x,y,z positions for V1...V6 from V0 and V7
   v1   = v0;
@@ -426,68 +460,68 @@ int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
   // Face A
 
   lm_vec3_sub( &bo, ro, v0 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  lm_vec3_add( &ar, rd, bo ); // vertex to ray via ray origin
 
-  t01 = ((ad.z*bo.x-ad.x*bo.z) > 0) ? 1 : 0; // edge vector y component -ve
+  t01 = ((ad.z*bo.x-ar.x*bo.z) > 0) ? 1 : 0; // edge vector y component -ve
 
   lm_vec3_sub( &bo, ro, v1 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  lm_vec3_add( &ar, rd, bo ); // vertex to ray via ray origin
 
-  t12 = ((ad.y*bo.z-ad.z*bo.y) > 0) ? 1 : 0; // edge vector x component -ve
+  t12 = ((ad.y*bo.z-ar.z*bo.y) > 0) ? 1 : 0; // edge vector x component -ve
 
   lm_vec3_sub( &bo, ro, v2 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  lm_vec3_add( &ar, rd, bo ); // vertex to ray via ray origin
 
-  t23 = ((ad.z*bo.x-ad.x*bo.z) < 0) ? 1 : 0; // edge vector y component +ve
+  t23 = ((ad.z*bo.x-ar.x*bo.z) < 0) ? 1 : 0; // edge vector y component +ve
 
   lm_vec3_sub( &bo, ro, v3 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  lm_vec3_add( &ar, rd, bo ); // vertex to ray via ray origin
 
-  t30 = ((ad.y*bo.z-ad.z*bo.y) < 0) ? 1 : 0; // edge vector x component +ve
+  t30 = ((ad.y*bo.z-ar.z*bo.y) < 0) ? 1 : 0; // edge vector x component +ve
 
   // Face F
 
   lm_vec3_sub( &bo, ro, v6 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  lm_vec3_add( &ar, rd, bo ); // vertex to ray via ray origin
 
-  t67 = ((ad.z*bo.x-ad.x*bo.z) > 0) ? 1 : 0; // edge vector y component -ve
+  t67 = ((ad.z*bo.x-ar.x*bo.z) > 0) ? 1 : 0; // edge vector y component -ve
 
   lm_vec3_sub( &bo, ro, v7 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  lm_vec3_add( &ar, rd, bo ); // vertex to ray via ray origin
 
-  t74 = ((ad.y*bo.z-ad.z*bo.y) < 0) ? 1 : 0; // edge vector x component +ve
+  t74 = ((ad.y*bo.z-ar.z*bo.y) < 0) ? 1 : 0; // edge vector x component +ve
 
   lm_vec3_sub( &bo, ro, v4 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  lm_vec3_add( &ar, rd, bo ); // vertex to ray via ray origin
 
-  t45 = ((ad.z*bo.x-ad.x*bo.z) < 0) ? 1 : 0; // edge vector y component +ve
+  t45 = ((ad.z*bo.x-ar.x*bo.z) < 0) ? 1 : 0; // edge vector y component +ve
 
   lm_vec3_sub( &bo, ro, v5 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  lm_vec3_add( &ar, rd, bo ); // vertex to ray via ray origin
 
-  t56 = ((ad.y*bo.z-ad.z*bo.y) > 0) ? 1 : 0; // edge vector x component -ve
+  t56 = ((ad.y*bo.z-ar.z*bo.y) > 0) ? 1 : 0; // edge vector x component -ve
 
   // Face B
   lm_vec3_sub( &bo, ro, v3 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  lm_vec3_add( &ar, rd, bo ); // vertex to ray via ray origin
 
-  t36 = ((ad.y*bo.x-ad.x*bo.y) > 0) ? 1 : 0; // edge vector z component -ve
+  t36 = ((ad.y*bo.x-ar.x*bo.y) > 0) ? 1 : 0; // edge vector z component -ve
 
   lm_vec3_sub( &bo, ro, v5 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  lm_vec3_add( &ar, rd, bo ); // vertex to ray via ray origin
 
-  t50 = ((ad.y*bo.x-ad.x*bo.y) < 0) ? 1 : 0; // edge vector z component +ve
+  t50 = ((ad.y*bo.x-ar.x*bo.y) < 0) ? 1 : 0; // edge vector z component +ve
 
   // Face D
   lm_vec3_sub( &bo, ro, v4 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  lm_vec3_add( &ar, rd, bo ); // vertex to ray via ray origin
 
-  t14 = ((ad.y*bo.x-ad.x*bo.y) > 0) ? 1 : 0; // edge vector z component -ve
+  t14 = ((ad.y*bo.x-ar.x*bo.y) > 0) ? 1 : 0; // edge vector z component -ve
 
   lm_vec3_sub( &bo, ro, v7 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  lm_vec3_add( &ar, rd, bo ); // vertex to ray via ray origin
 
-  t72 = ((ad.y*bo.x-ad.x*bo.y) < 0) ? 1 : 0; // edge vector z component +ve
+  t72 = ((ad.y*bo.x-ar.x*bo.y) < 0) ? 1 : 0; // edge vector z component +ve
 
   if( debug==1 ) {
     printf( "t01: %d\n", t01 );

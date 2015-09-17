@@ -194,6 +194,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 2
@@ -202,6 +203,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 3
@@ -210,6 +212,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 4
@@ -218,6 +221,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 5
@@ -226,6 +230,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 6
@@ -234,6 +239,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 7
@@ -242,6 +248,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 8
@@ -250,6 +257,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 9
@@ -258,6 +266,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
   printf("B: Ray origin positive Y axis, direction O\n");
@@ -272,6 +281,7 @@ int main() {
   rd.z = -15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 2
@@ -280,6 +290,7 @@ int main() {
   rd.z = -15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 3
@@ -288,6 +299,7 @@ int main() {
   rd.z = -15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 4
@@ -296,6 +308,7 @@ int main() {
   rd.z =   0.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 5
@@ -304,6 +317,7 @@ int main() {
   rd.z =   0.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 6
@@ -312,6 +326,7 @@ int main() {
   rd.z =   0.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 7
@@ -320,6 +335,7 @@ int main() {
   rd.z =  15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 8
@@ -328,6 +344,7 @@ int main() {
   rd.z =  15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 9
@@ -336,6 +353,7 @@ int main() {
   rd.z =  15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
   printf("C: Ray origin positive X axis, direction O\n");
@@ -350,6 +368,7 @@ int main() {
   rd.z =  15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 2
@@ -358,6 +377,7 @@ int main() {
   rd.z =   0.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 3
@@ -366,6 +386,7 @@ int main() {
   rd.z = -15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 4
@@ -374,6 +395,7 @@ int main() {
   rd.z =  15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 5
@@ -382,6 +404,7 @@ int main() {
   rd.z =   0.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 6
@@ -390,6 +413,7 @@ int main() {
   rd.z = -15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 7
@@ -398,6 +422,7 @@ int main() {
   rd.z =  15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 8
@@ -406,6 +431,7 @@ int main() {
   rd.z =   0.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 9
@@ -414,6 +440,7 @@ int main() {
   rd.z = -15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
   printf("D: Ray origin negative Y axis, direction O\n");
@@ -428,6 +455,7 @@ int main() {
   rd.z = -15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 2
@@ -436,6 +464,7 @@ int main() {
   rd.z = -15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 3
@@ -444,6 +473,7 @@ int main() {
   rd.z = -15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 4
@@ -452,6 +482,7 @@ int main() {
   rd.z =   0.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 5
@@ -460,6 +491,7 @@ int main() {
   rd.z =   0.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 6
@@ -468,6 +500,7 @@ int main() {
   rd.z =   0.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 7
@@ -476,6 +509,7 @@ int main() {
   rd.z =  15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 8
@@ -484,6 +518,7 @@ int main() {
   rd.z =  15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 9
@@ -492,6 +527,7 @@ int main() {
   rd.z =  15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
   printf("E: Ray origin negative X axis, direction O\n");
@@ -506,6 +542,7 @@ int main() {
   rd.z = -15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 2
@@ -514,6 +551,7 @@ int main() {
   rd.z =   0.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 3
@@ -522,6 +560,7 @@ int main() {
   rd.z =  15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 4
@@ -530,6 +569,7 @@ int main() {
   rd.z = -15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 5
@@ -538,6 +578,7 @@ int main() {
   rd.z =   0.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 6
@@ -546,6 +587,7 @@ int main() {
   rd.z =  15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 7
@@ -554,6 +596,7 @@ int main() {
   rd.z = -15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 8
@@ -562,6 +605,7 @@ int main() {
   rd.z =   0.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 9
@@ -570,6 +614,7 @@ int main() {
   rd.z =  15.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
   printf("F: Ray origin negative Z axis, direction O\n");
@@ -584,6 +629,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 2
@@ -592,6 +638,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 3
@@ -600,6 +647,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 4
@@ -608,6 +656,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 5
@@ -616,6 +665,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 6
@@ -624,6 +674,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 7
@@ -632,6 +683,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 8
@@ -640,6 +692,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray 9
@@ -648,6 +701,7 @@ int main() {
   rd.z =  -1.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c\n", lm_raybox( ro, rd, v0, v7, 0 ));
 
   printf("Fire 3 rays at faces A,B,C from (20, 20, 20)\n");
@@ -662,6 +716,7 @@ int main() {
   rd.z =  2.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray B
@@ -670,6 +725,7 @@ int main() {
   rd.z =  1.9f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray C
@@ -678,6 +734,7 @@ int main() {
   rd.z =  1.9f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
   printf("\n");
@@ -694,6 +751,7 @@ int main() {
   rd.z =  -2.0f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray D
@@ -702,6 +760,7 @@ int main() {
   rd.z =  -1.9f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
 // ray E
@@ -710,6 +769,7 @@ int main() {
   rd.z =  -1.9f;
 
   lm_vec3_sub( &rd, rd, ro );
+  lm_vec3_norm( &rd, rd );
   printf("%c", lm_raybox( ro, rd, v0, v7, 0 ));
 
   printf("\n");
