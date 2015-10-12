@@ -6,18 +6,23 @@ char lm_raybox( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
   int t01, t12, t23, t30, t45, t56, t67, t74, t14, t72, t36, t50;
   int a, b, c, d, e, f;
 
-/*
-  Vertex numbering - 0 and 7 diagonally opposite
+/*------------------------------------------------------------------------------
+   Ray/Box intersection test
 
-       6-----------5
-       |\          .\
-       | 3-----------0
-       | |         . |       ^
-       | |         . |      y|             4-----------5
-       | |         . |       |             |     45    |
-       7.|.........4 |       |             |           |
-        \|          `|     --+------->     |74   F   56|
-         2-----------1       |      x      |           |
+    A purely geometric approach is taken without using Pluecker coordinates or
+    floating point division.
+
+       Vertex numbering - v0 and v7 diagonally opposite
+
+         6-----------5
+        /.          /|        ^
+       3-----------0 |       y|
+       | .         | |        |
+       | .         | |        |/           4-----------5
+       | .         | |      --+------->    |     45    |
+       | 7.........|.4       /|      x     |           |
+       |.          |/       /              |74   F   56|
+       2-----------1      z/               |           |
                                            |     67    |
        6-----------5-----------4-----------7-----------6
        |    ~56    |    ~45    |    ~74    |    ~67    |
@@ -32,9 +37,102 @@ char lm_raybox( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
        |           |
        |     12    |
        2-----------1
-*/
 
-  // steal the appropriate x,y,z positions for V1...V6 from V0 and V7
+    Geometric View of Intersection:
+                                           ->
+                                        ro+Rd
+                                          *
+                                         ,.
+                                      , / .
+                                   ,   /  .  ->      ->
+                                ,     /   .  Ar = ro+Rd - v
+                             ,       /    .       -> ->
+                          ,         /     .     = Bo+Rd
+                     v' *- - - - - / - - -* v
+                         .        /     ,'
+                                 /    ,'
+                          .     /   ,'       ->
+                               /  ,'         Bo = ro-v
+                           .  / ,'
+                             /,'
+                            .'
+                           ro
+
+      v is a known vertex on the AA box, then the vector vv' = v'-v has a single
+      x, y or z component depending on v' position relative to v.
+
+      A ray has origin ro and direction vector Rd.
+
+      Rd can be a normalised (unit) direction vector.
+
+      Tetrahedron edge vectors Ar and Bo are easily found:
+
+          Bo = ro - v
+          Ar = Bo + Rd
+
+      A signed parallelepiped volume is represented by the scalar triple product
+
+          vol =  vv'.(Ar x Bo)
+
+      where
+                        ,              .
+                       |   i    j    k  |
+          Ar x Bo = det| Ar.x Ar.y Ar.z |
+                       | Bo.x Bo.y Bo.z |
+                        `              '
+
+      The orientation of Rd relative to vv' is given by the sign of the volume.
+      Since vv' is sparse, the scalar triple product uses just one cofactor of
+      the determinant. Only the sign of the vv' component is required and this
+      is implicit within the AA box vertex ordering.
+
+      The relative orientation indicates which side of a box edge a ray passes.
+
+      AA box faces are tested one by one but this could be done concurrently
+      in hardware.
+
+      Cofactors could use a magnitude comparison rather than a subtract and
+      sign check.
+
+    Flop summary:
+
+      12 box edges X
+        3 FP fpsub (Bo)
+        3 FP fpadd (Ar)
+        2 FP fpmul (cofactor)
+        1 FP fpsub | mag comparator
+
+        TOTAL 24 fpmul + 84 fpadd
+
+    Error Propagation:
+
+      Box vertex positions v are assumed to be exact.
+      Ray origin ro and direction Rd are assumed to be exact.
+
+      The box vertex position relative to the ray origin is calculated as the
+      vector Bo. Any error in Bo is directly propagated to vector Ar which
+      additionally picks up any error from adding Rd.
+
+      Errors in Bo and Ar are multiplied before applying the sign test.
+
+    Alternative Calculation of Vector Ar
+
+      Per box, the point r = ro+Rd can be pre-calculated with 3 FP adds.
+      Per edge test, vector Ar = r - v (3 FP subs)
+
+      This is an overhead of 3 FP adds per box, but it removes Ar's dependence
+      on Bo and its error.
+
+      This approach does not look as though it carries any real benefit over
+      the one already taken.
+
+      Other pre-calculations could be possible since the box vertices and ray
+      origin position are fixed points in space.
+
+------------------------------------------------------------------------------*/
+
+  // copy the appropriate x,y,z positions for V1...V6 from V0 and V7
+
   v1   = v0;
   v1.y = v7.y;
 

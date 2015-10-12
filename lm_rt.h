@@ -439,7 +439,7 @@ int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
 
     Alternative Calculation of Vector Ar
 
-      Per box, the point r = ro+Rd can be pre-caclulated with 3 FP adds.
+      Per box, the point r = ro+Rd can be pre-calculated with 3 FP adds.
       Per edge test, vector Ar = r - v (3 FP subs)
 
       This is an overhead of 3 FP adds per box, but it removes Ar's dependence
