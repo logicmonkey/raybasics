@@ -8,7 +8,7 @@
 
 // This takes the float value 'val', converts it to red, green & blue values, then
 // sets those values into the image memory buffer location pointed to by 'ptr'
-inline void setRGB(png_byte *ptr, float val);
+void setRGB(png_byte *ptr, float val);
 
 // This function actually writes out the PNG image file. The string 'title' is
 // also written into the image file
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
   return result;
 }
 
-inline void setRGB(png_byte *ptr, float val) {
+void setRGB(png_byte *ptr, float val) {
   int v = (int)(val * 767);
   if (v < 0) v = 0;
   if (v > 767) v = 767;
@@ -204,7 +204,8 @@ float *lm_rt_primary_rays( int width, int height ) {
        lm_vec3_norm( &rd, rd );
 
        // test rays against a single box defined by P0 and P1
-       t  = lm_rt_lmrayboxint( ro, rd, p0, p1, 0 );
+       t = lm_rt_lmrayboxint( ro, rd, p0, p1, 0 );
+//     t = lm_raybox_plucker( ro, rd, p0, p1 );
 
 #ifdef MP
        buffer[ y * width + x ] = (t == 1) ?  mpfr_get_flt( rd.x, MPFR_RNDN )

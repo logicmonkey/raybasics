@@ -563,15 +563,36 @@ int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
   return a|b|c|d|e|f;
 }
 
-int lm_rt_pcrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
-  vec3 raydir, raymom;
+void lm_plucker( int *s, vec3 a, vec3 b, vec3 ro, vec3 rd ) {
+  float l0, l1, l2, l3, l4, l5; // line plucker coords
+  float r0, r1, r2, r3, r4, r5; // ray plucker coords
+  float side;
 
-  vec3 v1, v2, v3, v4, v5, v6, diagonal;
-  vec3 dir01, dir12, dir23, dir30, dir45, dir56, dir67, dir74, dir14, dir72, dir36, dir50;
-  vec3 mom01, mom12, mom23, mom30, mom45, mom56, mom67, mom74, mom14, mom72, mom36, mom50;
-  float w01, w12, w23, w30, w45, w56, w67, w74, w14, w72, w36, w50;
-  float sw01, sw12, sw23, sw30, sw45, sw56, sw67, sw74, sw14, sw72, sw36, sw50;
+  // -- Mahovsky Wyvill --
+  l0 = a.x*b.y - b.x*a.y;
+  l1 = a.x*b.z - b.x*a.z;
+  l2 = a.x - b.x;
+  l3 = a.y*b.z - b.y*a.z;
+  l4 = a.z - b.z;
+  l5 = b.y - a.y;
+
+  r0 = ro.x*rd.y - rd.x*ro.y;
+  r1 = ro.x*rd.z - rd.x*ro.z;
+  r2 = -rd.x;
+  r3 = ro.y*rd.z - rd.y*ro.z;
+  r4 = -rd.z;
+  r5 = rd.y;
+
+  side = r2*l3 + r5*l1 + r4*l0 + r1*l5 + r0*l4 + r3*l2;
+
+  *s = (side < 0.0f) ? 1 : 0;
+}
+
+int lm_raybox_plucker( vec3 ro, vec3 rd, vec3 v0, vec3 v7 ) {
+
+  vec3 v1, v2, v3, v4, v5, v6;
   int t01, t12, t23, t30, t45, t56, t67, t74, t14, t72, t36, t50;
+  // six face test results
   int a, b, c, d, e, f;
 
 /*------------------------------------------------------------------------------
@@ -604,123 +625,47 @@ int lm_rt_pcrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
        |     12    |
        2-----------1
 
-  Plucker Coordinates { direction : moment }
-
-      R   = { Rd - ro : Rd x ro }
-      Enm = { vn - vm : vn x vm }
-
 ------------------------------------------------------------------------------*/
-
-  lm_vec3_sub( &raydir, rd, ro );
-
-  lm_vec3_cross( &raymom, rd, ro );
-
   // copy the appropriate x,y,z positions for V1...V6 from V0 and V7
-  lm_vec3_sub( &diagonal, v0, v7 );
+  v1   = v0;
+  v1.y = v7.y;
 
-  v1 = {0.0f, 0.0f, 0.0f};
-  v2 = {0.0f, 0.0f, 0.0f};
-  v3 = {0.0f, 0.0f, 0.0f};
-  v4 = {0.0f, 0.0f, 0.0f};
-  v5 = {0.0f, 0.0f, 0.0f};
-  v6 = {0.0f, 0.0f, 0.0f};
+  v2   = v7;
+  v2.z = v1.z;
 
-  dir01.y = -diagonal.y;
-  dir12.x = -diagonal.x;
-  dir23.y =  diagonal.y;
-  dir30.x =  diagonal.x;
+  v3   = v0;
+  v3.x = v7.x;
 
-  dir45.y =  diagonal.y;
-  dir56.x = -diagonal.x;
-  dir67.y = -diagonal.y;
-  dir74.x =  diagonal.x;
+  v6   = v7;
+  v6.y = v0.y;
 
-  dir36.z = -diagonal.z;
-  dir50.z =  diagonal.z;
-  dir14.z = -diagonal.z;
-  dir72.z =  diagonal.z;
+  v5   = v0;
+  v5.z = v7.z;
 
-  lm_vec3_cross( &mom01, v0, v1 );
-  lm_vec3_cross( &mom12, v1, v2 );
-  lm_vec3_cross( &mom23, v2, v3 );
-  lm_vec3_cross( &mom30, v3, v0 );
+  v4   = v1;
+  v4.z = v7.z;
+  // box is now set up from the initial two corners
 
-  lm_vec3_cross( &mom45, v4, v5 );
-  lm_vec3_cross( &mom56, v5, v6 );
-  lm_vec3_cross( &mom67, v6, v7 );
-  lm_vec3_cross( &mom74, v7, v4 );
+  lm_plucker( &t01, v0, v1, ro, rd);
+  lm_plucker( &t12, v1, v2, ro, rd);
+  lm_plucker( &t23, v2, v3, ro, rd);
+  lm_plucker( &t30, v3, v0, ro, rd);
 
-  lm_vec3_cross( &mom36, v3, v6 );
-  lm_vec3_cross( &mom50, v5, v0 );
-  lm_vec3_cross( &mom14, v1, v4 );
-  lm_vec3_cross( &mom72, v7, v2 );
+  lm_plucker( &t67, v6, v7, ro, rd);
+  lm_plucker( &t74, v7, v4, ro, rd);
+  lm_plucker( &t45, v4, v5, ro, rd);
+  lm_plucker( &t56, v5, v6, ro, rd);
 
-  lm_vec3_dot( &w01, raymom, mom01 );
-  lm_vec3_dot( &w12, raymom, mom12 );
-  lm_vec3_dot( &w23, raymom, mom23 );
-  lm_vec3_dot( &w30, raymom, mom30 );
-
-  lm_vec3_dot( &w45, raymom, mom45 );
-  lm_vec3_dot( &w56, raymom, mom56 );
-  lm_vec3_dot( &w67, raymom, mom67 );
-  lm_vec3_dot( &w74, raymom, mom74 );
-
-  lm_vec3_dot( &w36, raymom, mom36 );
-  lm_vec3_dot( &w50, raymom, mom50 );
-  lm_vec3_dot( &w14, raymom, mom14 );
-  lm_vec3_dot( &w72, raymom, mom72 );
-
-  // sw dot products are sparse: 1 FP mul each
-  lm_vec3_dot( &sw01, raydir, dir01 );
-  lm_vec3_dot( &sw12, raydir, dir12 );
-  lm_vec3_dot( &sw23, raydir, dir23 );
-  lm_vec3_dot( &sw30, raydir, dir30 );
-
-  lm_vec3_dot( &sw45, raydir, dir45 );
-  lm_vec3_dot( &sw56, raydir, dir56 );
-  lm_vec3_dot( &sw67, raydir, dir67 );
-  lm_vec3_dot( &sw74, raydir, dir74 );
-
-  lm_vec3_dot( &sw36, raydir, dir36 );
-  lm_vec3_dot( &sw50, raydir, dir50 );
-  lm_vec3_dot( &sw14, raydir, dir14 );
-  lm_vec3_dot( &sw72, raydir, dir72 );
-
-  t01 = (sw01 + w01 > 0) ? 1 : 0;
-  t12 = (sw12 + w12 > 0) ? 1 : 0;
-  t23 = (sw23 + w23 < 0) ? 1 : 0;
-  t30 = (sw30 + w30 < 0) ? 1 : 0;
-
-  t67 = (sw45 + w67 > 0) ? 1 : 0;
-  t74 = (sw56 + w74 < 0) ? 1 : 0;
-  t45 = (sw67 + w45 < 0) ? 1 : 0;
-  t56 = (sw74 + w56 > 0) ? 1 : 0;
-
-  t36 = (sw36 + w36 > 0) ? 1 : 0;
-  t50 = (sw50 + w50 < 0) ? 1 : 0;
-  t14 = (sw14 + w14 > 0) ? 1 : 0;
-  t72 = (sw72 + w72 < 0) ? 1 : 0;
-
-  if( debug==1 ) {
-    printf( "t01: %d\n", t01 );
-    printf( "t12: %d\n", t12 );
-    printf( "t23: %d\n", t23 );
-    printf( "t30: %d\n", t30 );
-    printf( "t45: %d\n", t45 );
-    printf( "t56: %d\n", t56 );
-    printf( "t67: %d\n", t67 );
-    printf( "t74: %d\n", t74 );
-    printf( "t50: %d\n", t50 );
-    printf( "t14: %d\n", t14 );
-    printf( "t72: %d\n", t72 );
-    printf( "t36: %d\n", t36 );
-  }
+  lm_plucker( &t36, v3, v6, ro, rd);
+  lm_plucker( &t50, v5, v0, ro, rd);
+  lm_plucker( &t14, v1, v4, ro, rd);
+  lm_plucker( &t72, v7, v2, ro, rd);
 
   a = ( t01 &  t12 &  t23 &  t30 ) & 1;
-  b = (~t50 & ~t30 & ~t36 & ~t56 ) & 1;
-  c = ( t14 & ~t01 &  t50 & ~t45 ) & 1;
-  d = (~t72 & ~t12 & ~t14 & ~t74 ) & 1;
-  e = ( t36 & ~t23 &  t72 & ~t67 ) & 1;
+  b = ( t50 & ~t30 &  t36 & ~t56 ) & 1;
+  c = (~t14 & ~t01 & ~t50 & ~t45 ) & 1;
+  d = ( t72 & ~t12 &  t14 & ~t74 ) & 1;
+  e = (~t36 & ~t23 & ~t72 & ~t67 ) & 1;
   f = ( t45 &  t56 &  t67 &  t74 ) & 1;
 
   return a|b|c|d|e|f;
