@@ -58,6 +58,28 @@ char lm_raybox( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
        |     12    |
        2-----------1
 
+  FlOps
+    Ray Plücker coords: 6 x mul + 3 x add
+    AABB edges 12 x [ 2 x mul + 2 x add ]
+
+    30 mul + 27 add
+
+    The 12 edges can be reduced to 6 using the silhouette of the box, so best
+    case that gives:
+
+    6 mul + 3 add + 6 (2 mul + 2 add) = 18 mul + 15 add
+
+    This is very good - even compared to the signed volume calculation method.
+
+    There is no silhouette logic in the following code, so all 12 edges are
+    calculated.
+
+  Calculations
+    Each box edge is reduced to a unit vector in a single x, y or z directon
+    and the relative orientation with the actual ray is calculated.
+
+    plucker.wxm does the heavy lifting to reduce the possibility of a mistake.
+
 ------------------------------------------------------------------------------*/
 
   r0 = ro.x*rd.y - rd.x*ro.y;

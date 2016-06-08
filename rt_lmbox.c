@@ -152,70 +152,91 @@ char lm_raybox( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
   v4.z = v7.z;
 
   // Face A
+  bo.x = ro.x - v0.x;
+  bo.z = ro.z - v0.z;
+  ad.x = rd.x + bo.x;
+  ad.z = rd.z + bo.z;
 
-  lm_vec3_sub( &bo, ro, v0 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  t01 = ((ad.z*bo.x-ad.x*bo.z) > 0) ? 1 : 0;
 
-  t01 = ((ad.z*bo.x-ad.x*bo.z) > 0) ? 1 : 0; // edge vector y component -ve
+  bo.y = ro.y - v1.y;
+  bo.z = ro.z - v1.z;
+  ad.y = rd.y + bo.y;
+  ad.z = rd.z + bo.z;
 
-  lm_vec3_sub( &bo, ro, v1 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  t12 = ((ad.y*bo.z-ad.z*bo.y) > 0) ? 1 : 0;
 
-  t12 = ((ad.y*bo.z-ad.z*bo.y) > 0) ? 1 : 0; // edge vector x component -ve
+  bo.x = ro.x - v2.x;
+  bo.z = ro.z - v2.z;
+  ad.x = rd.x + bo.x;
+  ad.z = rd.z + bo.z;
 
-  lm_vec3_sub( &bo, ro, v2 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  t23 = ((ad.z*bo.x-ad.x*bo.z) < 0) ? 1 : 0;
 
-  t23 = ((ad.z*bo.x-ad.x*bo.z) < 0) ? 1 : 0; // edge vector y component +ve
+  bo.y = ro.y - v3.y;
+  bo.z = ro.z - v3.z;
+  ad.y = rd.y + bo.y;
+  ad.z = rd.z + bo.z;
 
-  lm_vec3_sub( &bo, ro, v3 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
-
-  t30 = ((ad.y*bo.z-ad.z*bo.y) < 0) ? 1 : 0; // edge vector x component +ve
+  t30 = ((ad.y*bo.z-ad.z*bo.y) < 0) ? 1 : 0;
 
   // Face F
+  bo.x = ro.x - v6.x;
+  bo.z = ro.z - v6.z;
+  ad.x = rd.x + bo.x;
+  ad.z = rd.z + bo.z;
 
-  lm_vec3_sub( &bo, ro, v6 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  t67 = ((ad.z*bo.x-ad.x*bo.z) > 0) ? 1 : 0;
 
-  t67 = ((ad.z*bo.x-ad.x*bo.z) > 0) ? 1 : 0; // edge vector y component -ve
+  bo.y = ro.y - v7.y;
+  bo.z = ro.z - v7.z;
+  ad.y = rd.y + bo.y;
+  ad.z = rd.z + bo.z;
 
-  lm_vec3_sub( &bo, ro, v7 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  t74 = ((ad.y*bo.z-ad.z*bo.y) < 0) ? 1 : 0;
 
-  t74 = ((ad.y*bo.z-ad.z*bo.y) < 0) ? 1 : 0; // edge vector x component +ve
+  bo.x = ro.x - v4.x;
+  bo.z = ro.z - v4.z;
+  ad.x = rd.x + bo.x;
+  ad.z = rd.z + bo.z;
 
-  lm_vec3_sub( &bo, ro, v4 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  t45 = ((ad.z*bo.x-ad.x*bo.z) < 0) ? 1 : 0;
 
-  t45 = ((ad.z*bo.x-ad.x*bo.z) < 0) ? 1 : 0; // edge vector y component +ve
+  bo.y = ro.y - v5.y;
+  bo.z = ro.z - v5.z;
+  ad.y = rd.y + bo.y;
+  ad.z = rd.z + bo.z;
 
-  lm_vec3_sub( &bo, ro, v5 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  t56 = ((ad.y*bo.z-ad.z*bo.y) > 0) ? 1 : 0;
 
-  t56 = ((ad.y*bo.z-ad.z*bo.y) > 0) ? 1 : 0; // edge vector x component -ve
+  // Edges for Faces B, C, D, E
+  bo.x = ro.x - v3.x;
+  bo.y = ro.y - v3.y;
+  ad.x = rd.x + bo.x;
+  ad.y = rd.y + bo.y;
 
-  // Face B
-  lm_vec3_sub( &bo, ro, v3 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  t36 = ((ad.y*bo.x-ad.x*bo.y) > 0) ? 1 : 0;
 
-  t36 = ((ad.y*bo.x-ad.x*bo.y) > 0) ? 1 : 0; // edge vector z component -ve
+  bo.x = ro.x - v5.x;
+  bo.y = ro.y - v5.y;
+  ad.x = rd.x + bo.x;
+  ad.y = rd.y + bo.y;
 
-  lm_vec3_sub( &bo, ro, v5 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  t50 = ((ad.y*bo.x-ad.x*bo.y) < 0) ? 1 : 0;
 
-  t50 = ((ad.y*bo.x-ad.x*bo.y) < 0) ? 1 : 0; // edge vector z component +ve
+  bo.x = ro.x - v4.x;
+  bo.y = ro.y - v4.y;
+  ad.x = rd.x + bo.x;
+  ad.y = rd.y + bo.y;
 
-  // Face D
-  lm_vec3_sub( &bo, ro, v4 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  t14 = ((ad.y*bo.x-ad.x*bo.y) > 0) ? 1 : 0;
 
-  t14 = ((ad.y*bo.x-ad.x*bo.y) > 0) ? 1 : 0; // edge vector z component -ve
+  bo.x = ro.x - v7.x;
+  bo.y = ro.y - v7.y;
+  ad.x = rd.x + bo.x;
+  ad.y = rd.y + bo.y;
 
-  lm_vec3_sub( &bo, ro, v7 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
-
-  t72 = ((ad.y*bo.x-ad.x*bo.y) < 0) ? 1 : 0; // edge vector z component +ve
+  t72 = ((ad.y*bo.x-ad.x*bo.y) < 0) ? 1 : 0;
 
   if( debug==1 ) {
     printf( "t01: %d\n", t01 );
