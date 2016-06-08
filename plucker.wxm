@@ -1,0 +1,205 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 16.04.2 ] */
+
+/* [wxMaxima: input   start ] */
+/*
+         6-----------5
+        /.          /|        ^
+       3-----------0 |       y|
+       | .         | |        |
+       | .         | |        |/           4-----------5
+       | .         | |      --+------->    |     45    |
+       | 7.........|.4       /|      x     |           |
+       |.          |/       /              |74   F   56|
+       2-----------1      z/               |           |
+                                           |     67    |
+       6-----------5-----------4-----------7-----------6
+       |    ~56    |    ~45    |    ~74    |    ~67    |
+       |           |           |           |           |
+       |36   B   50|~50  C  ~14|14   D   72|~72  E  ~¦36|
+       |           |           |           |           |
+       |    ~30    |    ~01    |    ~12    |    ~23    |
+       3-----------0-----------1-----------2-----------3
+       |     30    |
+       |           |
+       |23   A   01|
+       |           |
+       |     12    |
+       2-----------1
+
+*/;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* Ray Origin A + Direction B form of Plucker coordinates */
+l0: ax*by - bx*ay$
+l1: ax*bz - bx*az$
+l2: -bx$
+l3: ay*bz - by*az$
+l4: -bz$
+l5: by$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* FRONT FACE 01: [0 -1 0] */
+ol0: ratsimp(l0), ax=v0x, ay=v0y, az=v0z, bx=0, by=-1, bz=0$
+ol1: ratsimp(l1), ax=v0x, ay=v0y, az=v0z, bx=0, by=-1, bz=0$
+ol2: ratsimp(l2), ax=v0x, ay=v0y, az=v0z, bx=0, by=-1, bz=0$
+ol3: ratsimp(l3), ax=v0x, ay=v0y, az=v0z, bx=0, by=-1, bz=0$
+ol4: ratsimp(l4), ax=v0x, ay=v0y, az=v0z, bx=0, by=-1, bz=0$
+ol5: ratsimp(l5), ax=v0x, ay=v0y, az=v0z, bx=0, by=-1, bz=0$
+
+t01: r2*ol3 + r5*ol1 + r4*ol0 + r1*ol5 + r0*ol4 + r3*ol2$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* 12: [-1 0 0] */
+ol0: ratsimp(l0), ax=v1x, ay=v1y, az=v1z, bx=-1, by=0, bz=0$
+ol1: ratsimp(l1), ax=v1x, ay=v1y, az=v1z, bx=-1, by=0, bz=0$
+ol2: ratsimp(l2), ax=v1x, ay=v1y, az=v1z, bx=-1, by=0, bz=0$
+ol3: ratsimp(l3), ax=v1x, ay=v1y, az=v1z, bx=-1, by=0, bz=0$
+ol4: ratsimp(l4), ax=v1x, ay=v1y, az=v1z, bx=-1, by=0, bz=0$
+ol5: ratsimp(l5), ax=v1x, ay=v1y, az=v1z, bx=-1, by=0, bz=0$
+
+t12: r2*ol3 + r5*ol1 + r4*ol0 + r1*ol5 + r0*ol4 + r3*ol2$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* 23: [0 1 0] */
+ol0: ratsimp(l0), ax=v2x, ay=v2y, az=v2z, bx=0, by=1, bz=0$
+ol1: ratsimp(l1), ax=v2x, ay=v2y, az=v2z, bx=0, by=1, bz=0$
+ol2: ratsimp(l2), ax=v2x, ay=v2y, az=v2z, bx=0, by=1, bz=0$
+ol3: ratsimp(l3), ax=v2x, ay=v2y, az=v2z, bx=0, by=1, bz=0$
+ol4: ratsimp(l4), ax=v2x, ay=v2y, az=v2z, bx=0, by=1, bz=0$
+ol5: ratsimp(l5), ax=v2x, ay=v2y, az=v2z, bx=0, by=1, bz=0$
+
+t23: r2*ol3 + r5*ol1 + r4*ol0 + r1*ol5 + r0*ol4 + r3*ol2$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* 30: [1 0 0] */
+ol0: ratsimp(l0), ax=v3x, ay=v3y, az=v3z, bx=1, by=0, bz=0$
+ol1: ratsimp(l1), ax=v3x, ay=v3y, az=v3z, bx=1, by=0, bz=0$
+ol2: ratsimp(l2), ax=v3x, ay=v3y, az=v3z, bx=1, by=0, bz=0$
+ol3: ratsimp(l3), ax=v3x, ay=v3y, az=v3z, bx=1, by=0, bz=0$
+ol4: ratsimp(l4), ax=v3x, ay=v3y, az=v3z, bx=1, by=0, bz=0$
+ol5: ratsimp(l5), ax=v3x, ay=v3y, az=v3z, bx=1, by=0, bz=0$
+
+t30: r2*ol3 + r5*ol1 + r4*ol0 + r1*ol5 + r0*ol4 + r3*ol2$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* BACK FACE 67: [0 -1 0] */
+ol0: ratsimp(l0), ax=v6x, ay=v6y, az=v6z, bx=0, by=-1, bz=0$
+ol1: ratsimp(l1), ax=v6x, ay=v6y, az=v6z, bx=0, by=-1, bz=0$
+ol2: ratsimp(l2), ax=v6x, ay=v6y, az=v6z, bx=0, by=-1, bz=0$
+ol3: ratsimp(l3), ax=v6x, ay=v6y, az=v6z, bx=0, by=-1, bz=0$
+ol4: ratsimp(l4), ax=v6x, ay=v6y, az=v6z, bx=0, by=-1, bz=0$
+ol5: ratsimp(l5), ax=v6x, ay=v6y, az=v6z, bx=0, by=-1, bz=0$
+
+t67: r2*ol3 + r5*ol1 + r4*ol0 + r1*ol5 + r0*ol4 + r3*ol2$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* 74: [1 0 0] */
+ol0: ratsimp(l0), ax=v7x, ay=v7y, az=v7z, bx=1, by=0, bz=0$
+ol1: ratsimp(l1), ax=v7x, ay=v7y, az=v7z, bx=1, by=0, bz=0$
+ol2: ratsimp(l2), ax=V7X, ay=v7y, az=v7z, bx=1, by=0, bz=0$
+ol3: ratsimp(l3), ax=v7x, ay=v7y, az=v7z, bx=1, by=0, bz=0$
+ol4: ratsimp(l4), ax=v7x, ay=v7y, az=v7z, bx=1, by=0, bz=0$
+ol5: ratsimp(l5), ax=v7x, ay=v7y, az=v7z, bx=1, by=0, bz=0$
+
+t74: r2*ol3 + r5*ol1 + r4*ol0 + r1*ol5 + r0*ol4 + r3*ol2$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* 45: [0 1 0] */
+ol0: ratsimp(l0), ax=v4x, ay=v4y, az=v4z, bx=0, by=1, bz=0$
+ol1: ratsimp(l1), ax=v4x, ay=v4y, az=v4z, bx=0, by=1, bz=0$
+ol2: ratsimp(l2), ax=v4x, ay=v4y, az=v4z, bx=0, by=1, bz=0$
+ol3: ratsimp(l3), ax=v4x, ay=v4y, az=v4z, bx=0, by=1, bz=0$
+ol4: ratsimp(l4), ax=v4x, ay=v4y, az=v4z, bx=0, by=1, bz=0$
+ol5: ratsimp(l5), ax=v4x, ay=V4y, az=v4z, bx=0, by=1, bz=0$
+
+t45: r2*ol3 + r5*ol1 + r4*ol0 + r1*ol5 + r0*ol4 + r3*ol2$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* 56: [-1 0 0] */
+ol0: ratsimp(l0), ax=v5x, ay=v5y, az=v5z, bx=-1, by=0, bz=0$
+ol1: ratsimp(l1), ax=v5x, ay=v5y, az=v5z, bx=-1, by=0, bz=0$
+ol2: ratsimp(l2), ax=v5x, ay=v5y, az=v5z, bx=-1, by=0, bz=0$
+ol3: ratsimp(l3), ax=v5x, ay=v5y, az=v5z, bx=-1, by=0, bz=0$
+ol4: ratsimp(l4), ax=v5x, ay=v5y, az=v5z, bx=-1, by=0, bz=0$
+ol5: ratsimp(l5), ax=v5x, ay=v5y, az=v5z, bx=-1, by=0, bz=0$
+
+t56: r2*ol3 + r5*ol1 + r4*ol0 + r1*ol5 + r0*ol4 + r3*ol2$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* FRONT-BACK CONNECTING EDGES 36: [0 0 -1] */
+ol0: ratsimp(l0), ax=v3x, ay=v3y, az=v3z, bx=0, by=0, bz=-1$
+ol1: ratsimp(l1), ax=v3x, ay=v3y, az=v3z, bx=0, by=0, bz=-1$
+ol2: ratsimp(l2), ax=v3x, ay=v3y, az=v3z, bx=0, by=0, bz=-1$
+ol3: ratsimp(l3), ax=v3x, ay=v3y, az=v3z, bx=0, by=0, bz=-1$
+ol4: ratsimp(l4), ax=v3x, ay=v3y, az=v3z, bx=0, by=0, bz=-1$
+ol5: ratsimp(l5), ax=v3x, ay=v3y, az=v3z, bx=0, by=0, bz=-1$
+
+t36: r2*ol3 + r5*ol1 + r4*ol0 + r1*ol5 + r0*ol4 + r3*ol2$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* 50: [0 0 1] */
+ol0: ratsimp(l0), ax=v5x, ay=v5y, az=v5z, bx=0, by=0, bz=1$
+ol1: ratsimp(l1), ax=v5x, ay=v5y, az=v5z, bx=0, by=0, bz=1$
+ol2: ratsimp(l2), ax=v5x, ay=v5y, az=v5z, bx=0, by=0, bz=1$
+ol3: ratsimp(l3), ax=v5x, ay=v5y, az=v5z, bx=0, by=0, bz=1$
+ol4: ratsimp(l4), ax=v5x, ay=v5y, az=v5z, bx=0, by=0, bz=1$
+ol5: ratsimp(l5), ax=v5x, ay=v5y, az=v5z, bx=0, by=0, bz=1$
+
+t50: r2*ol3 + r5*ol1 + r4*ol0 + r1*ol5 + r0*ol4 + r3*ol2$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* 14: [0 0 -1] */
+ol0: ratsimp(l0), ax=v1x, ay=v1y, az=v1z, bx=0, by=0, bz=-1$
+ol1: ratsimp(l1), ax=v1x, ay=v1y, az=v1z, bx=0, by=0, bz=-1$
+ol2: ratsimp(l2), ax=v1x, ay=v1y, az=v1z, bx=0, by=0, bz=-1$
+ol3: ratsimp(l3), ax=v1x, ay=v1y, az=v1z, bx=0, by=0, bz=-1$
+ol4: ratsimp(l4), ax=v1x, ay=v1y, az=v1z, bx=0, by=0, bz=-1$
+ol5: ratsimp(l5), ax=v1x, ay=v1y, az=v1z, bx=0, by=0, bz=-1$
+
+t14: r2*ol3 + r5*ol1 + r4*ol0 + r1*ol5 + r0*ol4 + r3*ol2$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+/* 72: [0 0 1] */
+ol0: ratsimp(l0), ax=v7x, ay=v7y, az=v7z, bx=0, by=0, bz=1$
+ol1: ratsimp(l1), ax=v7x, ay=v7y, az=v7z, bx=0, by=0, bz=1$
+ol2: ratsimp(l2), ax=v7x, ay=v7y, az=v7z, bx=0, by=0, bz=1$
+ol3: ratsimp(l3), ax=v7x, ay=v7y, az=v7z, bx=0, by=0, bz=1$
+ol4: ratsimp(l4), ax=v7x, ay=v7y, az=v7z, bx=0, by=0, bz=1$
+ol5: ratsimp(l5), ax=v7x, ay=v7y, az=v7z, bx=0, by=0, bz=1$
+
+t72: r2*ol3 + r5*ol1 + r4*ol0 + r1*ol5 + r0*ol4 + r3*ol2$
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+t01;
+t12;
+t23;
+t30;
+
+t67;
+t74;
+t45;
+t56;
+
+t36;
+t50;
+t14;
+t72;
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$

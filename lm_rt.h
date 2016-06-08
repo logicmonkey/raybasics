@@ -564,11 +564,11 @@ int lm_rt_lmrayboxint( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
 }
 
 void lm_plucker( int *s, vec3 a, vec3 b, vec3 ro, vec3 rd ) {
-  float l0, l1, l2, l3, l4, l5; // line plucker coords
-  float r0, r1, r2, r3, r4, r5; // ray plucker coords
+  float l0, l1, l2, l3, l4, l5; // line Plücker coords
+  float r0, r1, r2, r3, r4, r5; // ray Plücker coords
   float side;
 
-  // -- Mahovsky Wyvill --
+  // -- Mahovsky Wyvill -- 14 FP adds, 12 FP mul
   l0 = a.x*b.y - b.x*a.y;
   l1 = a.x*b.z - b.x*a.z;
   l2 = a.x - b.x;
@@ -660,6 +660,101 @@ int lm_raybox_plucker( vec3 ro, vec3 rd, vec3 v0, vec3 v7 ) {
   lm_plucker( &t50, v5, v0, ro, rd);
   lm_plucker( &t14, v1, v4, ro, rd);
   lm_plucker( &t72, v7, v2, ro, rd);
+
+  a = ( t01 &  t12 &  t23 &  t30 ) & 1;
+  b = ( t50 & ~t30 &  t36 & ~t56 ) & 1;
+  c = (~t14 & ~t01 & ~t50 & ~t45 ) & 1;
+  d = ( t72 & ~t12 &  t14 & ~t74 ) & 1;
+  e = (~t36 & ~t23 & ~t72 & ~t67 ) & 1;
+  f = ( t45 &  t56 &  t67 &  t74 ) & 1;
+
+  return a|b|c|d|e|f;
+}
+
+int lm_raybox_plucker_optimised( vec3 ro, vec3 rd, vec3 v0, vec3 v7 ) {
+
+  vec3 v1, v2, v3, v4, v5, v6;
+  float r0, r1, r2, r3, r4, r5; // ray Plücker coords
+  float l0, l1, l2, l3, l4, l5; // line Plücker coords
+
+  int t01, t12, t23, t30, t45, t56, t67, t74, t14, t72, t36, t50;
+  // six face test results
+  int a, b, c, d, e, f;
+
+  // copy the appropriate x,y,z positions for V1...V6 from V0 and V7
+  v1   = v0;
+  v1.y = v7.y;
+
+  v2   = v7;
+  v2.z = v1.z;
+
+  v3   = v0;
+  v3.x = v7.x;
+
+  v6   = v7;
+  v6.y = v0.y;
+
+  v5   = v0;
+  v5.z = v7.z;
+
+  v4   = v1;
+  v4.z = v7.z;
+
+/*------------------------------------------------------------------------------
+   Ray/Box intersection test
+
+   Optimised Plücker coordinates
+
+       Vertex numbering - v0 and v7 diagonally opposite
+
+         6-----------5
+        /.          /|        ^
+       3-----------0 |       y|
+       | .         | |        |
+       | .         | |        |/           4-----------5
+       | .         | |      --+------->    |     45    |
+       | 7.........|.4       /|      x     |           |
+       |.          |/       /              |74   F   56|
+       2-----------1      z/               |           |
+                                           |     67    |
+       6-----------5-----------4-----------7-----------6
+       |    ~56    |    ~45    |    ~74    |    ~67    |
+       |           |           |           |           |
+       |36   B   50|~50  C  ~14|14   D   72|~72  E  ~36|
+       |           |           |           |           |
+       |    ~30    |    ~01    |    ~12    |    ~23    |
+       3-----------0-----------1-----------2-----------3
+       |     30    |
+       |           |
+       |23   A   01|
+       |           |
+       |     12    |
+       2-----------1
+
+------------------------------------------------------------------------------*/
+  // box is now set up from the initial two corners
+
+  r0 = ro.x*rd.y - rd.x*ro.y;
+  r1 = ro.x*rd.z - rd.x*ro.z;
+  r2 = -rd.x;
+  r3 = ro.y*rd.z - rd.y*ro.z;
+  r4 = -rd.z;
+  r5 = rd.y;
+
+  t01 = ( r2*v0.z - r4*v0.x - r1 ) < 0 ? 1 : 0;
+  t12 = ( r5*v1.z + r4*v1.y + r3 ) < 0 ? 1 : 0;
+  t23 = (-r2*v2.z + r4*v2.x + r1 ) < 0 ? 1 : 0;
+  t30 = (-r5*v3.z - r4*v3.y - r3 ) < 0 ? 1 : 0;
+
+  t67 = ( r2*v6.z - r4*v6.x - r1 ) < 0 ? 1 : 0;
+  t74 = (-r5*v7.z - r4*v7.y - r3 ) < 0 ? 1 : 0;
+  t45 = (-r2*v4.z + r4*v4.x + r1 ) < 0 ? 1 : 0;
+  t56 = ( r5*v5.z + r4*v5.y + r3 ) < 0 ? 1 : 0;
+
+  t36 = (-r2*v3.y - r5*v3.x + r0 ) < 0 ? 1 : 0;
+  t50 = ( r2*v5.y + r5*v5.x - r0 ) < 0 ? 1 : 0;
+  t14 = (-r2*v1.y - r5*v1.x + r0 ) < 0 ? 1 : 0;
+  t72 = ( r2*v7.y + r5*v7.x - r0 ) < 0 ? 1 : 0;
 
   a = ( t01 &  t12 &  t23 &  t30 ) & 1;
   b = ( t50 & ~t30 &  t36 & ~t56 ) & 1;

@@ -204,8 +204,9 @@ float *lm_rt_primary_rays( int width, int height ) {
        lm_vec3_norm( &rd, rd );
 
        // test rays against a single box defined by P0 and P1
-       t = lm_rt_lmrayboxint( ro, rd, p0, p1, 0 );
+//     t = lm_rt_lmrayboxint( ro, rd, p0, p1, 0 );
 //     t = lm_raybox_plucker( ro, rd, p0, p1 );
+       t = lm_raybox_plucker_optimised( ro, rd, p0, p1 );
 
 #ifdef MP
        buffer[ y * width + x ] = (t == 1) ?  mpfr_get_flt( rd.x, MPFR_RNDN )

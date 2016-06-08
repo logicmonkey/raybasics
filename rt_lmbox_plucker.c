@@ -1,138 +1,37 @@
 #include <stdio.h>
 #include "lm_vec3.h"
 
+void lm_plucker( int *s, vec3 a, vec3 b, vec3 ro, vec3 rd ) {
+  float l0, l1, l2, l3, l4, l5; // line Plücker coords
+  float r0, r1, r2, r3, r4, r5; // ray Plücker coords
+  float side;
+
+  // -- Mahovsky Wyvill -- 14 FP adds, 12 FP mul
+  l0 = a.x*b.y - b.x*a.y;
+  l1 = a.x*b.z - b.x*a.z;
+  l2 = a.x - b.x;
+  l3 = a.y*b.z - b.y*a.z;
+  l4 = a.z - b.z;
+  l5 = b.y - a.y;
+
+  r0 = ro.x*rd.y - rd.x*ro.y;
+  r1 = ro.x*rd.z - rd.x*ro.z;
+  r2 = -rd.x;
+  r3 = ro.y*rd.z - rd.y*ro.z;
+  r4 = -rd.z;
+  r5 = rd.y;
+
+  side = r2*l3 + r5*l1 + r4*l0 + r1*l5 + r0*l4 + r3*l2;
+
+  *s = (side < 0.0f) ? 1 : 0;
+}
+
 char lm_raybox( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
-  vec3 ad, bo, v1, v2, v3, v4, v5, v6;
+  vec3 v1, v2, v3, v4, v5, v6;
   int t01, t12, t23, t30, t45, t56, t67, t74, t14, t72, t36, t50;
   int a, b, c, d, e, f;
 
-/*------------------------------------------------------------------------------
-   Ray/Box intersection test
-
-    A purely geometric approach is taken without using Pluecker coordinates or
-    floating point division.
-
-       Vertex numbering - v0 and v7 diagonally opposite
-
-         6-----------5
-        /.          /|        ^
-       3-----------0 |       y|
-       | .         | |        |
-       | .         | |        |/           4-----------5
-       | .         | |      --+------->    |     45    |
-       | 7.........|.4       /|      x     |           |
-       |.          |/       /              |74   F   56|
-       2-----------1      z/               |           |
-                                           |     67    |
-       6-----------5-----------4-----------7-----------6
-       |    ~56    |    ~45    |    ~74    |    ~67    |
-       |           |           |           |           |
-       |~36  B  ~50|50   C   14|~14  D  ~72|72   E   36|
-       |           |           |           |           |
-       |    ~30    |    ~01    |    ~12    |    ~23    |
-       3-----------0-----------1-----------2-----------3
-       |     30    |
-       |           |
-       |23   A   01|
-       |           |
-       |     12    |
-       2-----------1
-
-    Geometric View of Intersection:
-                                           ->
-                                        ro+Rd
-                                          *
-                                         ,.
-                                      , / .
-                                   ,   /  .  ->      ->
-                                ,     /   .  Ar = ro+Rd - v
-                             ,       /    .       -> ->
-                          ,         /     .     = Bo+Rd
-                     v' *- - - - - / - - -* v
-                         .        /     ,'
-                                 /    ,'
-                          .     /   ,'       ->
-                               /  ,'         Bo = ro-v
-                           .  / ,'
-                             /,'
-                            .'
-                           ro
-
-      v is a known vertex on the AA box, then the vector vv' = v'-v has a single
-      x, y or z component depending on v' position relative to v.
-
-      A ray has origin ro and direction vector Rd.
-
-      Rd can be a normalised (unit) direction vector.
-
-      Tetrahedron edge vectors Ar and Bo are easily found:
-
-          Bo = ro - v
-          Ar = Bo + Rd
-
-      A signed parallelepiped volume is represented by the scalar triple product
-
-          vol =  vv'.(Ar x Bo)
-
-      where
-                        ,              .
-                       |   i    j    k  |
-          Ar x Bo = det| Ar.x Ar.y Ar.z |
-                       | Bo.x Bo.y Bo.z |
-                        `              '
-
-      The orientation of Rd relative to vv' is given by the sign of the volume.
-      Since vv' is sparse, the scalar triple product uses just one cofactor of
-      the determinant. Only the sign of the vv' component is required and this
-      is implicit within the AA box vertex ordering.
-
-      The relative orientation indicates which side of a box edge a ray passes.
-
-      AA box faces are tested one by one but this could be done concurrently
-      in hardware.
-
-      Cofactors could use a magnitude comparison rather than a subtract and
-      sign check.
-
-    Flop summary:
-
-      12 box edges X
-        3 FP fpsub (Bo)
-        3 FP fpadd (Ar)
-        2 FP fpmul (cofactor)
-        1 FP fpsub | mag comparator
-
-        TOTAL 24 fpmul + 84 fpadd
-
-    Error Propagation:
-
-      Box vertex positions v are assumed to be exact.
-      Ray origin ro and direction Rd are assumed to be exact.
-
-      The box vertex position relative to the ray origin is calculated as the
-      vector Bo. Any error in Bo is directly propagated to vector Ar which
-      additionally picks up any error from adding Rd.
-
-      Errors in Bo and Ar are multiplied before applying the sign test.
-
-    Alternative Calculation of Vector Ar
-
-      Per box, the point r = ro+Rd can be pre-calculated with 3 FP adds.
-      Per edge test, vector Ar = r - v (3 FP subs)
-
-      This is an overhead of 3 FP adds per box, but it removes Ar's dependence
-      on Bo and its error.
-
-      This approach does not look as though it carries any real benefit over
-      the one already taken.
-
-      Other pre-calculations could be possible since the box vertices and ray
-      origin position are fixed points in space.
-
-------------------------------------------------------------------------------*/
-
   // copy the appropriate x,y,z positions for V1...V6 from V0 and V7
-
   v1   = v0;
   v1.y = v7.y;
 
@@ -151,71 +50,61 @@ char lm_raybox( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
   v4   = v1;
   v4.z = v7.z;
 
-  // Face A
+/*------------------------------------------------------------------------------
 
-  lm_vec3_sub( &bo, ro, v0 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+   Ray/Box intersection test
 
-  t01 = ((ad.z*bo.x-ad.x*bo.z) > 0) ? 1 : 0; // edge vector y component -ve
+   Full Plücker coordinates calculated
 
-  lm_vec3_sub( &bo, ro, v1 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+       Vertex numbering - v0 and v7 diagonally opposite
 
-  t12 = ((ad.y*bo.z-ad.z*bo.y) > 0) ? 1 : 0; // edge vector x component -ve
+         6-----------5
+        /.          /|        ^
+       3-----------0 |       y|
+       | .         | |        |
+       | .         | |        |/           4-----------5
+       | .         | |      --+------->    |     45    |
+       | 7.........|.4       /|      x     |           |
+       |.          |/       /              |74   F   56|
+       2-----------1      z/               |           |
+                                           |     67    |
+       6-----------5-----------4-----------7-----------6
+       |    ~56    |    ~45    |    ~74    |    ~67    |
+       |           |           |           |           |
+       |36   B   50|~50  C  ~14|14   D   72|~72  E  ~36|
+       |           |           |           |           |
+       |    ~30    |    ~01    |    ~12    |    ~23    |
+       3-----------0-----------1-----------2-----------3
+       |     30    |
+       |           |
+       |23   A   01|
+       |           |
+       |     12    |
+       2-----------1
 
-  lm_vec3_sub( &bo, ro, v2 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+------------------------------------------------------------------------------*/
 
-  t23 = ((ad.z*bo.x-ad.x*bo.z) < 0) ? 1 : 0; // edge vector y component +ve
+  lm_plucker( &t01, v0, v1, ro, rd);
+  lm_plucker( &t12, v1, v2, ro, rd);
+  lm_plucker( &t23, v2, v3, ro, rd);
+  lm_plucker( &t30, v3, v0, ro, rd);
 
-  lm_vec3_sub( &bo, ro, v3 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
+  lm_plucker( &t67, v6, v7, ro, rd);
+  lm_plucker( &t74, v7, v4, ro, rd);
+  lm_plucker( &t45, v4, v5, ro, rd);
+  lm_plucker( &t56, v5, v6, ro, rd);
 
-  t30 = ((ad.y*bo.z-ad.z*bo.y) < 0) ? 1 : 0; // edge vector x component +ve
+  lm_plucker( &t36, v3, v6, ro, rd);
+  lm_plucker( &t50, v5, v0, ro, rd);
+  lm_plucker( &t14, v1, v4, ro, rd);
+  lm_plucker( &t72, v7, v2, ro, rd);
 
-  // Face F
-
-  lm_vec3_sub( &bo, ro, v6 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
-
-  t67 = ((ad.z*bo.x-ad.x*bo.z) > 0) ? 1 : 0; // edge vector y component -ve
-
-  lm_vec3_sub( &bo, ro, v7 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
-
-  t74 = ((ad.y*bo.z-ad.z*bo.y) < 0) ? 1 : 0; // edge vector x component +ve
-
-  lm_vec3_sub( &bo, ro, v4 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
-
-  t45 = ((ad.z*bo.x-ad.x*bo.z) < 0) ? 1 : 0; // edge vector y component +ve
-
-  lm_vec3_sub( &bo, ro, v5 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
-
-  t56 = ((ad.y*bo.z-ad.z*bo.y) > 0) ? 1 : 0; // edge vector x component -ve
-
-  // Face B
-  lm_vec3_sub( &bo, ro, v3 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
-
-  t36 = ((ad.y*bo.x-ad.x*bo.y) > 0) ? 1 : 0; // edge vector z component -ve
-
-  lm_vec3_sub( &bo, ro, v5 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
-
-  t50 = ((ad.y*bo.x-ad.x*bo.y) < 0) ? 1 : 0; // edge vector z component +ve
-
-  // Face D
-  lm_vec3_sub( &bo, ro, v4 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
-
-  t14 = ((ad.y*bo.x-ad.x*bo.y) > 0) ? 1 : 0; // edge vector z component -ve
-
-  lm_vec3_sub( &bo, ro, v7 ); // vertex to ray origin
-  lm_vec3_add( &ad, rd, bo ); // vertex to ray via ray origin
-
-  t72 = ((ad.y*bo.x-ad.x*bo.y) < 0) ? 1 : 0; // edge vector z component +ve
+  a = ( t01 &  t12 &  t23 &  t30 ) & 1;
+  b = ( t50 & ~t30 &  t36 & ~t56 ) & 1;
+  c = (~t14 & ~t01 & ~t50 & ~t45 ) & 1;
+  d = ( t72 & ~t12 &  t14 & ~t74 ) & 1;
+  e = (~t36 & ~t23 & ~t72 & ~t67 ) & 1;
+  f = ( t45 &  t56 &  t67 &  t74 ) & 1;
 
   if( debug==1 ) {
     printf( "t01: %d\n", t01 );
@@ -230,14 +119,8 @@ char lm_raybox( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
     printf( "t14: %d\n", t14 );
     printf( "t72: %d\n", t72 );
     printf( "t36: %d\n", t36 );
+    printf( "a%d b%d c%d d%d e%d f%d\n", a, b, c, d, e, f );
   }
-
-  a = ( t01 &  t12 &  t23 &  t30 ) & 1;
-  b = (~t50 & ~t30 & ~t36 & ~t56 ) & 1;
-  c = ( t14 & ~t01 &  t50 & ~t45 ) & 1;
-  d = (~t72 & ~t12 & ~t14 & ~t74 ) & 1;
-  e = ( t36 & ~t23 &  t72 & ~t67 ) & 1;
-  f = ( t45 &  t56 &  t67 &  t74 ) & 1;
 
   if( a==1 ){ return 'A'; };
   if( b==1 ){ return 'B'; };
@@ -245,6 +128,7 @@ char lm_raybox( vec3 ro, vec3 rd, vec3 v0, vec3 v7, int debug ) {
   if( d==1 ){ return 'D'; };
   if( e==1 ){ return 'E'; };
   if( f==1 ){ return 'F'; };
+
   return '0';
 }
 
