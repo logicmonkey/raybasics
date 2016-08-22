@@ -19,6 +19,16 @@ int main( int argc, char *argv[] )
   unsigned int s;
   unsigned long C;
 
+  if (argc != 3) {
+    printf("Usage: veltkamp <float(hex)> <split(dec)>\n");
+    printf("       Performs a Veltkamp split on the float x such that x = xh + xl exactly,\n");
+    printf("       - where xh has p-s precision and xl has s precision\n");
+    return;
+  }
+
+  // x.i = strtol(*++argv, (char **)NULL, 16);
+  // s   = strtod(*++argv, (char **)NULL );
+  // more obviously...
   x.i = strtol( argv[1], NULL, 16 ); // x as a hex sp float
   s   = strtod( argv[2], NULL );     // s-1 bits in x
 
